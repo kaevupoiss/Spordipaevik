@@ -1,0 +1,22 @@
+{% extends "main.html" %}
+{% block body %}
+{% from "_formhelpers.html" import render_field %}
+
+<h1>SP</h1>
+
+<form id="register" method="POST">
+  <dl>
+    {{ render_field(form.first_name) }}
+    {{ render_field(form.last_name) }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.password) }}
+    {{ render_field(form.confirm) }}
+  </dl>
+  <button type="submit" name="register">Registreeri</button>
+</form>
+
+<a href="{{ url_for('index') }}">
+<button type="button" name="login">TAGASI</button>
+</a>
+
+{% endblock %}

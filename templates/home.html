@@ -1,0 +1,49 @@
+{% extends "main.html" %}
+{% block body %}
+  <div class="header">
+    <button type="button" name="menu">menüü</button>
+    <h1 id="nimi">{{ name }}</h1>
+    <button type="button" name="reload" onClick="location.href=location.href">reload</button>
+  </div>
+
+  <div class="menu">
+    <h1>Menüü</h1>
+    <ul>
+      <a href="{{ url_for('seaded') }}"><li>Seaded</li></a>
+      <a href="{{ url_for('statistika') }}"><li>Statistika</li></a>
+      <a href="{{ url_for('logout') }}"><li>Logi välja</li></a>
+    </ul>
+  </div>
+
+  <div class="content">
+    <div class="entry">
+      <h1>14,3s</h1>
+      <h3>100m jooks</h3>
+      <p>3 päeva tagasi</p>
+      <button type="button" name="tulemuse_statistika">Statistika</button>
+    </div>
+    <div class="entry">
+      <h1>8,47m</h1>
+      <h3>kuulitõuge</h3>
+      <p>10 päeva tagasi</p>
+      <button type="button" name="tulemuse_statistika">Statistika</button>
+    </div>
+    <div class="entry">
+      <h1>-</h1>
+      <h3>1km jooks</h3>
+      <p>17 päeva tagasi</p>
+      <button type="button" name="tulemuse_statistika">Statistika</button>
+    </div>
+    <div class="entry">
+      <h1>60kg</h1>
+      <h3>rinnalt surumine</h3>
+      <p>24 päeva tagasi</p>
+      <button type="button" name="tulemuse_statistika">Statistika</button>
+    </div>
+  </div>
+
+  <div class="newentry">
+    <a href="{{ url_for('uus_tulemus') }}"><button type="button" name="newentry">LISA TULEMUS</button></a>
+  </div>
+
+{% endblock %}

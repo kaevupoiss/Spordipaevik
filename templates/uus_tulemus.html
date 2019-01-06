@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+{% block body %}
+
+  <div class="header">
+    <a href="{{ url_for('home') }}">
+      <button type="button" name="back">Back</button>
+    </a>
+    <h1>LISA TULEMUS</h1>
+  </div>
+
+  <form id="resultform" action="{{ url_for('resultform') }}" method="POST">
+    <input type="text" id="kood" name="kood" placeholder="kood"><br>
+    <input type="text" id="sport" name="sport" placeholder="sport"><br>
+    <input type="text" id="type" name="type" placeholder="type"><br>
+    <input type="text" id="result" name="result" placeholder="result"><br>
+    <input type="text" id="day" name="day" placeholder="day"><br>
+    <input type="text" id="month" name="month" placeholder="month"><br>
+    <input type="text" id="year" name="year" placeholder="year"><br>
+    <button type="submit" name="submit">LISA TULEMUS</button>
+  </form>
+{% endblock %}
