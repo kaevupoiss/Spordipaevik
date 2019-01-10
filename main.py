@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from wtforms import Form, BooleanField, StringField, PasswordField, validators
+from wtforms import Form, BooleanField, StringField, PasswordField, SelectField, validators
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
@@ -81,6 +81,13 @@ class RegistrationForm(Form):
     ])
     confirm = PasswordField('Parool uuesti')
 
+class TrainingsForm(Form):
+    sport = SelectField('Spordiala')
+
+class InsertSport(Form):
+    sport = StringField('Sport')
+    type = StringField('Type')
+
 
 @app.route("/", methods=['POST', 'GET'])
 def index():
@@ -101,17 +108,38 @@ def index():
 def home():
     return render_template('home.html', name = (current_user.first_name + ' ' + current_user.last_name))
 
+@app.route("/treeningud", methods=['POST', 'GET'])
+@login_required
+def treeningud():
+    form = TrainingsForm(request.form)
+    query = Sport.query.group_by(Sport.sport)
+    form.sport.choices = [(s.id, s.sport) for s in query.all()]
+    return render_template('treeningud.html', form=form)
+
 @app.route("/seaded")
+@login_required
 def seaded():
     return render_template('seaded.html')
 
 @app.route("/statistika")
+@login_required
 def statistika():
     return render_template('statistika.html')
 
 @app.route("/uus_tulemus")
+@login_required
 def uus_tulemus():
     return render_template('uus_tulemus.html')
+
+@app.route("/new_sport", methods=['POST', 'GET'])
+def new_sport():
+    form = InsertSport(request.form)
+    if form.validate() and request.method == 'POST':
+        sport = Sport(sport=form.sport.data,
+                      type=form.type.data)
+        db.session.add(sport)
+        db.session.commit()
+    return render_template('new_sport.html', form = form)
 
 #Registreerimine töötab!
 @app.route("/register", methods=['POST', 'GET'])

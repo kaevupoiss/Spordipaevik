@@ -1,0 +1,19 @@
+{% extends "main.html" %}
+{% block body %}
+{% from "_formhelpers.html" import render_field %}
+
+<h1>TREENINGUD</h1>
+
+<form id="add_training" method="POST">
+  <dl>
+    {{ render_field(form.sport) }}
+  </dl>
+  <button type="submit" name="add_training">Lisa trenn</button>
+</form>
+
+<a href="{{ url_for('home') }}">
+  <button type="button" name="back">Back</button>
+</a>
+
+{{ query }}
+{% endblock %}
