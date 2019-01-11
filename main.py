@@ -83,6 +83,9 @@ class RegistrationForm(Form):
 
 class TrainingsForm(Form):
     sport = SelectField('Spordiala')
+    period = SelectField('Kui kaua?')
+    competitions = SelectField('Võistlused?', choices=[('Y', 'Jah'), ('N', 'Ei')])
+    active = SelectField('Praegu käid?', choices=[('Y', 'Jah'), ('N', 'Ei')])
 
 class InsertSport(Form):
     sport = StringField('Sport')
@@ -114,6 +117,7 @@ def treeningud():
     form = TrainingsForm(request.form)
     query = Sport.query.group_by(Sport.sport)
     form.sport.choices = [(s.id, s.sport) for s in query.all()]
+    form.period.choices = [(str(i), str(i) + ' aastat') for i in range(1,15)]
     return render_template('treeningud.html', form=form)
 
 @app.route("/seaded")

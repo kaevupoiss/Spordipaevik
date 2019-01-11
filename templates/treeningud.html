@@ -7,6 +7,9 @@
 <form id="add_training" method="POST">
   <dl>
     {{ render_field(form.sport) }}
+    {{ render_field(form.period) }}
+    {{ render_field(form.competitions) }}
+    {{ render_field(form.active) }}
   </dl>
   <button type="submit" name="add_training">Lisa trenn</button>
 </form>
@@ -15,5 +18,4 @@
   <button type="button" name="back">Back</button>
 </a>
 
-{{ query }}
 {% endblock %}
