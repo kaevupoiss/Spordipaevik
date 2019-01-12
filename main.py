@@ -82,10 +82,11 @@ class RegistrationForm(Form):
     confirm = PasswordField('Parool uuesti')
 
 class TrainingsForm(Form):
-    sport = SelectField('Spordiala')
-    period = SelectField('Kui kaua?')
-    competitions = SelectField('Võistlused?', choices=[('Y', 'Jah'), ('N', 'Ei')])
-    active = SelectField('Praegu käid?', choices=[('Y', 'Jah'), ('N', 'Ei')])
+    sport = SelectField('Spordiala', coerce=str)
+    period = SelectField('Kui kaua?', coerce=str)
+    competitions = SelectField('Võistlused?', choices=[('Y', 'Jah'), ('N', 'Ei')], coerce=str)
+    active = SelectField('Praegu käid?', choices=[('Y', 'Jah'), ('N', 'Ei')], coerce=str)
+    years_ago = SelectField('Mitu aastat tagasi?', coerce=str)
 
 class InsertSport(Form):
     sport = StringField('Sport')
@@ -115,9 +116,18 @@ def home():
 @login_required
 def treeningud():
     form = TrainingsForm(request.form)
-    query = Sport.query.group_by(Sport.sport)
+    query = Sport.query.filter_by(type='')
     form.sport.choices = [(s.id, s.sport) for s in query.all()]
-    form.period.choices = [(str(i), str(i) + ' aastat') for i in range(1,15)]
+    form.period.choices = [(str(i), str(i) + ' aastat') for i in range(1, 15)]
+    form.years_ago.choices = [(str(j), str(j) + ' aastat tagasi') for j in range(1, 15)]
+    '''
+    if form.validate() and request.method == 'POST':
+        training = Training(user_id = current_user.id,
+                            sport_id = form.sport.data,
+                            comp = form.competitions.data,
+                            years = form.years.data,
+                            years_ago = form.years_ago.data)
+    '''
     return render_template('treeningud.html', form=form)
 
 @app.route("/seaded")

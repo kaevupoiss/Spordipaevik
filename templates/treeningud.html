@@ -9,7 +9,10 @@
     {{ render_field(form.sport) }}
     {{ render_field(form.period) }}
     {{ render_field(form.competitions) }}
-    {{ render_field(form.active) }}
+    {{ render_field(form.active, onchange="java_script_:show(this.options[this.selectedIndex].value)")}}
+    <div id="years_ago_div", style="display:none">
+    {{ render_field(form.years_ago) }}
+    </div>
   </dl>
   <button type="submit" name="add_training">Lisa trenn</button>
 </form>
@@ -17,5 +20,16 @@
 <a href="{{ url_for('home') }}">
   <button type="button" name="back">Back</button>
 </a>
+
+<script type="text/javascript">
+  function show(YoN) {
+    if (YoN == 'N') {
+      years_ago_div.style.display = 'inline-block';
+    }
+    else {
+      years_ago_div.style.display = 'none';
+    }
+  }
+</script>
 
 {% endblock %}
