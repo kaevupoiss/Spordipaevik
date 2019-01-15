@@ -82,7 +82,7 @@ class RegistrationForm(Form):
     confirm = PasswordField('Parool uuesti')
 
 class TrainingsForm(Form):
-    sport = SelectField('Spordiala', coerce=str)
+    sport = SelectField('Spordiala', coerce=int)
     period = SelectField('Kui kaua?', coerce=str)
     competitions = SelectField('Võistlused?', choices=[('Y', 'Jah'), ('N', 'Ei')], coerce=str)
     active = SelectField('Praegu käid?', choices=[('Y', 'Jah'), ('N', 'Ei')], coerce=str)
@@ -116,19 +116,30 @@ def home():
 @login_required
 def treeningud():
     form = TrainingsForm(request.form)
-    query = Sport.query.filter_by(type='')
-    form.sport.choices = [(s.id, s.sport) for s in query.all()]
+    sport_choices = Sport.query.filter_by(type='')
+    form.sport.choices = [(s.id, s.sport) for s in sport_choices.all()]
     form.period.choices = [(str(i), str(i) + ' aastat') for i in range(1, 15)]
     form.years_ago.choices = [(str(j), str(j) + ' aastat tagasi') for j in range(1, 15)]
-    '''
+
+    trainings_list = Training.query.filter_by(user_id=current_user.id).all()
+
     if form.validate() and request.method == 'POST':
+        if form.active.data == 'N':
+            years_ago = form.years_ago.data
+        else:
+            years_ago = ''
+        if form.competitions.data == 'Y':
+            comp = True
+        else:
+            comp = False
         training = Training(user_id = current_user.id,
                             sport_id = form.sport.data,
-                            comp = form.competitions.data,
-                            years = form.years.data,
-                            years_ago = form.years_ago.data)
-    '''
-    return render_template('treeningud.html', form=form)
+                            comp = comp,
+                            years = form.period.data,
+                            years_ago = years_ago)
+        db.session.add(training)
+        db.session.commit()
+    return render_template('treeningud.html', form=form, trainings_list=trainings_list)
 
 @app.route("/seaded")
 @login_required

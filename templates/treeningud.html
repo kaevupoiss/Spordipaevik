@@ -1,9 +1,14 @@
 {% extends "main.html" %}
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
+{% from "_traininghelpers.html" import trainings_field %}
 
 <h1>TREENINGUD</h1>
-
+{% for training in trainings_list %}
+  <dl>
+    {{ trainings_field(training) }}
+  </dl>
+{% endfor %}
 <form id="add_training" method="POST">
   <dl>
     {{ render_field(form.sport) }}

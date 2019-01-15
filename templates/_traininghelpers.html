@@ -1,0 +1,24 @@
+{% macro trainings_field(training) %}
+  <dt>Spordiala
+  <dd>
+    {{ training.sport }}
+  </dd>
+  <dt>Kui kaua?
+  <dd>
+    {{ training.period }}
+  </dd>
+  <dt>Võistlused?
+  <dd>
+    {{ training.competitions }}
+  </dd>
+  <dt>Praegu käid?
+  <dd>
+    {{ training.active }}
+  </dd>
+  {% if training.active == False %}
+    <dt>Mitu aastat tagasi?
+    <dd>
+      {{ training.years_ago }}
+    </dd>
+  {% endif %}
+{% endmacro %}
