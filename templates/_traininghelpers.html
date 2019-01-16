@@ -1,24 +1,35 @@
 {% macro trainings_field(training) %}
   <dt>Spordiala
   <dd>
-    {{ training.sport }}
+    {{ training.sport.sport }}
   </dd>
   <dt>Kui kaua?
   <dd>
-    {{ training.period }}
+    {{ training.years|string + ' aastat' }}
   </dd>
   <dt>Võistlused?
   <dd>
-    {{ training.competitions }}
+    {% if training.comp %}
+      Jah
+    {% else %}
+      Ei
+    {% endif %}
   </dd>
   <dt>Praegu käid?
   <dd>
-    {{ training.active }}
+    {% if training.years_ago %}
+      Ei
+    {% else %}
+      Jah
+    {% endif %}
   </dd>
-  {% if training.active == False %}
+  {% if training.years_ago %}
     <dt>Mitu aastat tagasi?
     <dd>
-      {{ training.years_ago }}
+      {{ training.years_ago|string + ' aastat tagasi' }}
     </dd>
   {% endif %}
+  <form class="remove_training" method="post">
+    <button type="submit" value="{{ training.id }}" name="remove_training">Eemalda trenn</button>
+  </form>
 {% endmacro %}

@@ -49,8 +49,9 @@ class Sport(db.Model):
     logs = db.relationship('Log', backref=db.backref('sport', lazy=True))
     trainings = db.relationship('Training', backref=db.backref('sport', lazy=True))
 
+    #Hack for treeningud()
     def __repr__(self):
-        return '<Sport %r>' % self.sport
+        return self.sport
 
 class Training(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -122,6 +123,10 @@ def treeningud():
     form.years_ago.choices = [(str(j), str(j) + ' aastat tagasi') for j in range(1, 15)]
 
     trainings_list = Training.query.filter_by(user_id=current_user.id).all()
+    if 'remove_training' in request.form and request.method == 'POST':
+        Training.query.filter_by(id=request.form['remove_training']).delete()
+        db.session.commit()
+        return redirect(url_for('treeningud'))
 
     if form.validate() and request.method == 'POST':
         if form.active.data == 'N':
@@ -139,6 +144,7 @@ def treeningud():
                             years_ago = years_ago)
         db.session.add(training)
         db.session.commit()
+        return redirect(url_for('treeningud'))
     return render_template('treeningud.html', form=form, trainings_list=trainings_list)
 
 @app.route("/seaded")

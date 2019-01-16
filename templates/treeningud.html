@@ -4,11 +4,6 @@
 {% from "_traininghelpers.html" import trainings_field %}
 
 <h1>TREENINGUD</h1>
-{% for training in trainings_list %}
-  <dl>
-    {{ trainings_field(training) }}
-  </dl>
-{% endfor %}
 <form id="add_training" method="POST">
   <dl>
     {{ render_field(form.sport) }}
@@ -21,6 +16,13 @@
   </dl>
   <button type="submit" name="add_training">Lisa trenn</button>
 </form>
+
+{% for training in trainings_list %}
+  <dl>
+    {{ trainings_field(training) }}
+  </dl>
+{% endfor %}
+
 
 <a href="{{ url_for('home') }}">
   <button type="button" name="back">Back</button>
