@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from wtforms import Form, BooleanField, StringField, PasswordField, SelectField, validators
+from wtforms.fields.html5 import DateField
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
@@ -49,7 +50,6 @@ class Sport(db.Model):
     logs = db.relationship('Log', backref=db.backref('sport', lazy=True))
     trainings = db.relationship('Training', backref=db.backref('sport', lazy=True))
 
-    #Hack for treeningud()
     def __repr__(self):
         return self.sport
 
@@ -92,6 +92,12 @@ class TrainingsForm(Form):
 class InsertSport(Form):
     sport = StringField('Sport')
     type = StringField('Type')
+
+class NewLog(Form):
+    sport = SelectField('Spordiala?', coerce=int)
+    type = SelectField('Täpsemalt?', coerce=int)
+    result = StringField('Tulemus')
+    #day_posted = DateField('Soorituse kuupäev', format='%Y-%m-%d')
 
 
 @app.route("/", methods=['POST', 'GET'])
@@ -157,10 +163,40 @@ def seaded():
 def statistika():
     return render_template('statistika.html')
 
-@app.route("/uus_tulemus")
+@app.route("/uus_tulemus", methods=['POST', 'GET'])
 @login_required
 def uus_tulemus():
-    return render_template('uus_tulemus.html')
+    form = NewLog(request.form)
+    sport_choices = Sport.query.filter_by(type='')
+    form.sport.choices = [(sport.id, sport.sport) for sport in sport_choices.all()]
+    form.type.choices = [(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()]
+
+    if request.method == 'POST':
+        log = Log(user_id = current_user.id,
+                  sport_id = form.type.data,
+                  time_posted = datetime.now(),
+                  #time_posted = form.day_posted.data,
+                  result = form.result.data)
+        db.session.add(log)
+        db.session.commit()
+        return redirect(url_for('uus_tulemus'))
+    return render_template('uus_tulemus.html', form=form)
+
+@app.route('/new_log/<sport_id>')
+def new_log(sport_id):
+    sport = Sport.query.filter_by(id=sport_id).first()
+
+    types = Sport.query.filter_by(sport=sport.sport).all()
+
+    typeArray = []
+
+    for type in types:
+        typeObj = {}
+        typeObj['id'] = type.id
+        typeObj['type'] = type.type
+        typeArray.append(typeObj)
+
+    return jsonify({'types' : typeArray})
 
 @app.route("/new_sport", methods=['POST', 'GET'])
 def new_sport():
@@ -192,7 +228,6 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
 
 if __name__ == "__main__":
     app.run(debug=True)

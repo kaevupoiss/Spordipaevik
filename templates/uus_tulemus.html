@@ -1,5 +1,6 @@
 {% extends "main.html" %}
 {% block body %}
+{% from "_formhelpers.html" import render_field %}
 
   <div class="header">
     <a href="{{ url_for('home') }}">
@@ -8,14 +9,34 @@
     <h1>LISA TULEMUS</h1>
   </div>
 
-  <form id="resultform" action="{{ url_for('resultform') }}" method="POST">
-    <input type="text" id="kood" name="kood" placeholder="kood"><br>
-    <input type="text" id="sport" name="sport" placeholder="sport"><br>
-    <input type="text" id="type" name="type" placeholder="type"><br>
-    <input type="text" id="result" name="result" placeholder="result"><br>
-    <input type="text" id="day" name="day" placeholder="day"><br>
-    <input type="text" id="month" name="month" placeholder="month"><br>
-    <input type="text" id="year" name="year" placeholder="year"><br>
-    <button type="submit" name="submit">LISA TULEMUS</button>
+  <form id="uus_logi" method="post">
+    <dl>
+      {{ render_field(form.sport) }}
+      {{ render_field(form.type) }}
+      {{ render_field(form.result) }}
+      {# render_field(form.day_posted) #}
+    </dl>
+    <button type="submit" name="uus_logi">Lisa sooritus</button>
   </form>
+  <script type="text/javascript">
+      let sport_select = document.getElementById('sport');
+      let type_select = document.getElementById('type');
+
+      sport_select.onchange = function() {
+        sport = sport_select.value;
+
+        fetch('/new_log/' + sport).then(function(response) {
+
+          response.json().then(function(data) {
+              let optionHTML = '';
+
+              for (let type of data.types) {
+                optionHTML += '<option value="' + type.id + '">' + type.type + '</option>';
+              };
+
+              type_select.innerHTML = optionHTML;
+          });
+        });
+      }
+  </script>
 {% endblock %}
