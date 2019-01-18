@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
 from datetime import datetime
 from wtforms import Form, BooleanField, StringField, PasswordField, SelectField, validators
 from wtforms.fields.html5 import DateField
@@ -117,7 +118,12 @@ def index():
 @app.route("/home")
 @login_required
 def home():
-    return render_template('home.html', name = (current_user.first_name + ' ' + current_user.last_name))
+
+    log_list = Log.query.filter_by(user_id=current_user.id).order_by(desc(Log.time_posted))
+
+    return render_template('home.html',
+                           name = (current_user.first_name + ' ' + current_user.last_name),
+                           log_list = log_list)
 
 @app.route("/treeningud", methods=['POST', 'GET'])
 @login_required

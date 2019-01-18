@@ -33,3 +33,21 @@
     <button type="submit" value="{{ training.id }}" name="remove_training">Eemalda trenn</button>
   </form>
 {% endmacro %}
+
+{% macro log_field(log) %}
+  <h1>
+    {{ log.result }}
+  </h1>
+
+  <h3>
+    {{ log.sport.type }}
+  </h3>
+
+  <p>
+    {{ log.time_posted }}
+  </p>
+
+  <form class="statistika" method="post">
+    <button type="submit" value="{{ log.id }}" name="statistics">Statistika</button>
+  </form>
+{% endmacro %}

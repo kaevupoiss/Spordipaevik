@@ -1,4 +1,6 @@
 {% extends "main.html" %}
+{% from "_traininghelpers.html" import log_field %}
+
 {% block body %}
   <div class="header">
     <button type="button" name="menu">menüü</button>
@@ -19,32 +21,13 @@
   <div class="newentry">
     <a href="{{ url_for('uus_tulemus') }}"><button type="button" name="newentry">LISA TULEMUS</button></a>
   </div>
-  
+
   <div class="content">
-    <div class="entry">
-      <h1>14,3s</h1>
-      <h3>100m jooks</h3>
-      <p>3 päeva tagasi</p>
-      <button type="button" name="tulemuse_statistika">Statistika</button>
-    </div>
-    <div class="entry">
-      <h1>8,47m</h1>
-      <h3>kuulitõuge</h3>
-      <p>10 päeva tagasi</p>
-      <button type="button" name="tulemuse_statistika">Statistika</button>
-    </div>
-    <div class="entry">
-      <h1>-</h1>
-      <h3>1km jooks</h3>
-      <p>17 päeva tagasi</p>
-      <button type="button" name="tulemuse_statistika">Statistika</button>
-    </div>
-    <div class="entry">
-      <h1>60kg</h1>
-      <h3>rinnalt surumine</h3>
-      <p>24 päeva tagasi</p>
-      <button type="button" name="tulemuse_statistika">Statistika</button>
-    </div>
+    {% for log in log_list %}
+      <div>
+        {{ log_field(log) }}
+      </div>
+    {% endfor %}
   </div>
 
 {% endblock %}
