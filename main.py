@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, current_app
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 from datetime import datetime
@@ -6,20 +6,54 @@ from wtforms import Form, BooleanField, StringField, PasswordField, SelectField,
 from wtforms.fields.html5 import DateField
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_security import Security, RoleMixin, SQLAlchemyUserDatastore
+#from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed
+from flask_admin import Admin, AdminIndexView
+from flask_admin.contrib.sqla import ModelView
 
+#initialize Flask
 app = Flask(__name__)
+#secret key
 app.config['SECRET_KEY'] = '\x9e\x1b\xa8\xfb\x880\x95^\x924F\xb0`\xaetl\xa2\xd7\xae\xccvP\x87\x89'
+#database connection
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #Error surpress
+#Error surpress
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+#initialize SQLAlchemy
 db = SQLAlchemy(app)
+
+#initialize login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'index'
 
+#define logged user
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+roles_users = db.Table('roles_users',
+                       db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+                       db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+
+#Role class
+class Role(db.Model, RoleMixin):
+
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(20), unique=True)
+    description = db.Column(db.String(255))
+
+    #__str__ is required by Flask-Admin
+    def __str__(self):
+        return self.name
+
+    #__hash__ is required to avoid TypeError: unhashable type: 'role' when saving a User
+    def __hash__(self):
+        return hash(self.name)
+
+
+#User class
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(30))
@@ -28,8 +62,11 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(80))
     klass = db.Column(db.String(8))
     isikukood = db.Column(db.String(11))
+    #active = db.Column(db.Boolean())
+    #confirmed_at = db.Column(db.DateTime())
     logs = db.relationship('Log', backref=db.backref('user', lazy=True))
     trainings = db.relationship('Training', backref=db.backref('user', lazy=True))
+    roles = db.relationship('Role', secondary=roles_users, backref=db.backref('user', lazy='dynamic'))
 
     def __repr__(self):
         return '<User %r>' % self.email
@@ -65,6 +102,35 @@ class Training(db.Model):
     def __repr__(self):
         return '<Training %r>' % self.sport_id
 
+#initialize SQLAlchemyUserDatastore and flask_security
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
+
+@app.before_first_request
+def before_first_request():
+
+    # Create any database tables that don't exist yet.
+    db.create_all()
+
+    # Create the Roles "admin" and "end-user" -- unless they already exist
+    user_datastore.find_or_create_role(name='admin', description='Administrator')
+    user_datastore.find_or_create_role(name='end-user', description='End user')
+
+    # Create two Users for testing purposes -- unless they already exist.
+    encrypted_password = generate_password_hash('123241234', method='sha256')
+    if not user_datastore.get_user('useruser'):
+        user_datastore.create_user(email='useruser', password=encrypted_password)
+    if not user_datastore.get_user('adminadmin'):
+        user_datastore.create_user(email='adminadmin', password=encrypted_password)
+
+    # Commit any database changes; the User and Roles must exist before we can add a Role to the User
+    db.session.commit()
+
+    # Give one User has the "end-user" role, while the other has the "admin" role. (This will have no effect if the
+    # Users already have these Roles.) Again, commit any database changes.
+    user_datastore.add_role_to_user('useruser', 'end-user')
+    user_datastore.add_role_to_user('adminadmin', 'admin')
+    db.session.commit()
 
 #Form creation
 class LoginForm(Form):
@@ -90,9 +156,11 @@ class TrainingsForm(Form):
     active = SelectField('Praegu käid?', choices=[('Y', 'Jah'), ('N', 'Ei')], coerce=str)
     years_ago = SelectField('Mitu aastat tagasi?', coerce=str)
 
+'''
 class InsertSport(Form):
     sport = StringField('Sport')
     type = StringField('Type')
+'''
 
 class NewLog(Form):
     sport = SelectField('Spordiala?', coerce=int)
@@ -100,6 +168,19 @@ class NewLog(Form):
     result = StringField('Tulemus')
     #day_posted = DateField('Soorituse kuupäev', format='%Y-%m-%d')
 
+class MyModelView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.has_role('admin')
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('index'))
+
+class MyAdminIndexView(AdminIndexView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.has_role('admin')
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('index'))
 
 @app.route("/", methods=['POST', 'GET'])
 def index():
@@ -109,6 +190,7 @@ def index():
         if user:
             if check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
+                identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
                 return redirect(url_for('home'))
 
         return '<h1>Invalid username or password</h1>'
@@ -189,6 +271,7 @@ def uus_tulemus():
     return render_template('uus_tulemus.html', form=form)
 
 @app.route('/new_log/<sport_id>')
+@login_required
 def new_log(sport_id):
     sport = Sport.query.filter_by(id=sport_id).first()
 
@@ -204,6 +287,7 @@ def new_log(sport_id):
 
     return jsonify({'types' : typeArray})
 
+'''
 @app.route("/new_sport", methods=['POST', 'GET'])
 def new_sport():
     form = InsertSport(request.form)
@@ -213,6 +297,7 @@ def new_sport():
         db.session.add(sport)
         db.session.commit()
     return render_template('new_sport.html', form = form)
+'''
 
 #Registreerimine töötab!
 @app.route("/register", methods=['POST', 'GET'])
@@ -233,7 +318,15 @@ def register():
 @login_required
 def logout():
     logout_user()
+    for key in ('identity.name', 'identity.auth_type'):
+        session.pop(key, None)
+    identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
     return redirect(url_for('index'))
+
+admin = Admin(app, index_view=MyAdminIndexView())
+admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(Sport, db.session))
+admin.add_view(MyModelView(Role, db.session))
 
 if __name__ == "__main__":
     app.run(debug=True)
