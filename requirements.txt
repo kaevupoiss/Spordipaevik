@@ -1,7 +1,11 @@
-flask
 gunicorn
+flask
 flask_sqlalchemy
+sqlalchemy
 datetime
 wtforms
-werkzeug
-flask_login
+werkzeug.security
+flask_login import
+flask_security
+flask_principal
+flask_admin
