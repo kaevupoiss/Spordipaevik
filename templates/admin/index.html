@@ -1,0 +1,13 @@
+{% extends 'admin/master.html' %}
+
+
+{% block head_css %}
+{{ super() }}
+<link href="{{ url_for('static', filename='sb.admiin-2.css') }}" rel='stylesheet'>
+{% endblock head_css %}
+
+
+{% block body %}
+{{ super() }}
+<h1>Hello!</h1>
+{% endblock body %}

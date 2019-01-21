@@ -5,10 +5,10 @@ from datetime import datetime
 from wtforms import Form, BooleanField, StringField, PasswordField, SelectField, validators
 from wtforms.fields.html5 import DateField
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask_security import Security, RoleMixin, SQLAlchemyUserDatastore
-#from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed
-from flask_admin import Admin, AdminIndexView
+from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin
+from flask_security import Security, RoleMixin, SQLAlchemyUserDatastore, current_user
+from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed
+from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 
 #initialize Flask
@@ -62,8 +62,8 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(80))
     klass = db.Column(db.String(8))
     isikukood = db.Column(db.String(11))
-    #active = db.Column(db.Boolean())
-    #confirmed_at = db.Column(db.DateTime())
+    active = db.Column(db.Boolean())
+    confirmed_at = db.Column(db.DateTime())
     logs = db.relationship('Log', backref=db.backref('user', lazy=True))
     trainings = db.relationship('Training', backref=db.backref('user', lazy=True))
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('user', lazy='dynamic'))
@@ -71,6 +71,8 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User %r>' % self.email
 
+    def has_role(self, *args):
+        return set(args).issubset({role.name for role in self.roles})
 class Log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -168,19 +170,60 @@ class NewLog(Form):
     result = StringField('Tulemus')
     #day_posted = DateField('Soorituse kuupäev', format='%Y-%m-%d')
 
+
+
 class MyModelView(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.has_role('admin')
 
     def inaccessible_callback(self, name, **kwargs):
-        return redirect(url_for('index'))
+        return redirect(url_for('index'), next=request.path)
 
-class MyAdminIndexView(AdminIndexView):
+class AdminUserView(ModelView):
+    # Don't display the password on the list of Users
+    column_exclude_list = ('password',)
+
+    # Don't include the standard password field when creating or editing a User (but see below)
+    form_excluded_columns = ('password',)
+
+    # Automatically display human-readable names for the current and available Roles when creating or editing a User
+    column_auto_select_related = True
+
     def is_accessible(self):
         return current_user.is_authenticated and current_user.has_role('admin')
 
     def inaccessible_callback(self, name, **kwargs):
-        return redirect(url_for('index'))
+        return redirect(url_for('index'), next=request.path)
+
+    def scaffold_form(self):
+
+        form_class = super(AdminUserView, self).scaffold_form()
+
+        # Add a password field, naming it "password2" and labeling it "New Password".
+        form_class.password2 = PasswordField('New Password')
+        return form_class
+
+    # This callback executes when the user saves changes to a newly-created or edited User
+    def on_model_change(self, form, model, is_created):
+
+        # If the password field isn't blank...
+        if len(model.password2):
+
+            # ... then encrypt the new password prior to storing it in the database.
+            model.password = generate_password_hash(model.password2, method='sha256')
+
+
+class MyAdminIndexView(AdminIndexView):
+    def is_accessible(self):
+        return current_user.is_authenticated and (current_user.has_role('admin')
+                                                  or current_user.has_role('teacher'))
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('index'), next = request.path)
+
+    @expose('/')
+    def index(self):
+        return self.render('admin/index.html')
 
 @app.route("/", methods=['POST', 'GET'])
 def index():
@@ -324,7 +367,7 @@ def logout():
     return redirect(url_for('index'))
 
 admin = Admin(app, index_view=MyAdminIndexView())
-admin.add_view(MyModelView(User, db.session))
+admin.add_view(AdminUserView(User, db.session))
 admin.add_view(MyModelView(Sport, db.session))
 admin.add_view(MyModelView(Role, db.session))
 
