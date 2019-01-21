@@ -4,7 +4,7 @@ flask_sqlalchemy
 sqlalchemy
 datetime
 wtforms
-werkzeug.security
+werkzeug
 flask_login
 flask_security
 flask_principal
