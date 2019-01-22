@@ -9,6 +9,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, U
 from flask_security import Security, RoleMixin, SQLAlchemyUserDatastore, current_user
 from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed
 from flask_admin import Admin, AdminIndexView, expose
+from flask_admin.menu import MenuLink
 from flask_admin.contrib.sqla import ModelView
 
 #initialize Flask
@@ -37,6 +38,7 @@ roles_users = db.Table('roles_users',
                        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
                        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 
+
 #Role class
 class Role(db.Model, RoleMixin):
 
@@ -60,7 +62,7 @@ class User(UserMixin, db.Model):
     last_name = db.Column(db.String(20))
     email = db.Column(db.String(64), unique=True)
     password = db.Column(db.String(80))
-    klass = db.Column(db.String(8))
+    klass = db.Column(db.Integer, db.ForeignKey('klass.id'))
     isikukood = db.Column(db.String(11))
     active = db.Column(db.Boolean())
     confirmed_at = db.Column(db.DateTime())
@@ -73,12 +75,16 @@ class User(UserMixin, db.Model):
 
     def has_role(self, *args):
         return set(args).issubset({role.name for role in self.roles})
+
+
 class Log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     result = db.Column(db.String(20), nullable=False)
-    sport_id = db.Column(db.String(40), db.ForeignKey('sport.id'), nullable=False)
-    time_posted = db.Column(db.DateTime)
+    sport_id = db.Column(db.Integer, db.ForeignKey('sport.id'), nullable=False)
+    time_posted = db.Column(db.DateTime())
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
+    comments = db.Column(db.String(255))
 
     def __repr__(self):
         return '<Result %r>' % self.result
@@ -89,6 +95,7 @@ class Sport(db.Model):
     type = db.Column(db.String(40), nullable=False)
     logs = db.relationship('Log', backref=db.backref('sport', lazy=True))
     trainings = db.relationship('Training', backref=db.backref('sport', lazy=True))
+    tasks = db.relationship('Task', backref=db.backref('sport', lazy=True))
 
     def __repr__(self):
         return self.sport
@@ -104,6 +111,19 @@ class Training(db.Model):
     def __repr__(self):
         return '<Training %r>' % self.sport_id
 
+class Task(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    klass_id = db.Column(db.Integer, db.ForeignKey('klass.id'))
+    sport_id = db.Column(db.Integer, db.ForeignKey('sport.id'))
+    description = db.Column(db.String(255))
+    time_tasked = db.Column(db.DateTime())
+    logs = db.relationship('Log', backref=db.backref('task', lazy=True))
+
+class Klass(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    klass = db.Column(db.String(8))
+    tasks = db.relationship('Task', backref=db.backref('klass', lazy=True))
+
 #initialize SQLAlchemyUserDatastore and flask_security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
@@ -117,21 +137,24 @@ def before_first_request():
     # Create the Roles "admin" and "end-user" -- unless they already exist
     user_datastore.find_or_create_role(name='admin', description='Administrator')
     user_datastore.find_or_create_role(name='end-user', description='End user')
+    user_datastore.find_or_create_role(name='teacher', description='Õpetaja')
 
-    # Create two Users for testing purposes -- unless they already exist.
-    encrypted_password = generate_password_hash('123241234', method='sha256')
+    # Create three Users for testing purposes -- unless they already exist.
+    encrypted_password = generate_password_hash('12341234', method='sha256')
     if not user_datastore.get_user('useruser'):
         user_datastore.create_user(email='useruser', password=encrypted_password)
     if not user_datastore.get_user('adminadmin'):
         user_datastore.create_user(email='adminadmin', password=encrypted_password)
+    if not user_datastore.get_user('opetaja'):
+        user_datastore.create_user(email='opetaja', password=encrypted_password)
 
-    # Commit any database changes; the User and Roles must exist before we can add a Role to the User
+    # Commit any database changes
     db.session.commit()
 
-    # Give one User has the "end-user" role, while the other has the "admin" role. (This will have no effect if the
-    # Users already have these Roles.) Again, commit any database changes.
+    # Give the users roles
     user_datastore.add_role_to_user('useruser', 'end-user')
     user_datastore.add_role_to_user('adminadmin', 'admin')
+    user_datastore.add_role_to_user('opetaja', 'teacher')
     db.session.commit()
 
 #Form creation
@@ -141,15 +164,19 @@ class LoginForm(Form):
     remember = BooleanField('Jäta meelde')
 
 class RegistrationForm(Form):
-    first_name = StringField('Eesnimi', [validators.Length(max=30)])
-    last_name = StringField('Perekonnanimi', [validators.Length(max=20)])
-    email = StringField('Emaili Aadress', [validators.Length(min=6, max=64)])
+    first_name = StringField('Eesnimi', [validators.Length(max=30, message='Eesnimi on liiga pikk')])
+    last_name = StringField('Perekonnanimi', [validators.Length(max=20, message='Perekonnanimi on liiga pikk')])
+    email = StringField('Emaili Aadress', [
+        validators.Length(min=6, max=64, message='Emaili aadress on liiga lühike'),
+        validators.Email(message='See ei ole emaili aadress'),
+        validators.DataRequired(message='See väli on kohustuslik')
+    ])
     password = PasswordField('Parool', [
-        validators.DataRequired(),
-        validators.Length(min=8, max=80),
+        validators.DataRequired(message='See väli on kohustuslik'),
+        validators.Length(min=8, max=80, message='Parool on liiga lühike'),
         validators.EqualTo('confirm', message='Paroolid peavad ühtima')
     ])
-    confirm = PasswordField('Parool uuesti')
+    confirm = PasswordField('Parool uuesti', [validators.DataRequired(message='See väli on kohustuslik')])
 
 class TrainingsForm(Form):
     sport = SelectField('Spordiala', coerce=int)
@@ -227,6 +254,11 @@ class MyAdminIndexView(AdminIndexView):
 
 @app.route("/", methods=['POST', 'GET'])
 def index():
+    if current_user.is_authenticated and (current_user.has_role('admin') or current_user.has_role('teacher')):
+        return redirect('/admin')
+    elif current_user.is_authenticated and current_user.has_role('end-user'):
+        return redirect(url_for('home'))
+
     form = LoginForm(request.form)
     if form.validate() and request.method == 'POST':
         user = User.query.filter_by(email=form.email.data).first()
@@ -234,8 +266,11 @@ def index():
             if check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
-                return redirect(url_for('home'))
 
+                if current_user.has_role('admin') or current_user.has_role('teacher'):
+                    return redirect('/admin')
+                else:
+                    return redirect(url_for('home'))
         return '<h1>Invalid username or password</h1>'
 
     return render_template('index.html', form=form)
@@ -246,8 +281,13 @@ def home():
 
     log_list = Log.query.filter_by(user_id=current_user.id).order_by(desc(Log.time_posted))
 
+    if current_user.first_name and current_user.last_name:
+        name = (current_user.first_name + ' ' + current_user.last_name)
+    else:
+        name = current_user.email
+
     return render_template('home.html',
-                           name = (current_user.first_name + ' ' + current_user.last_name),
+                           name = name,
                            log_list = log_list)
 
 @app.route("/treeningud", methods=['POST', 'GET'])
@@ -370,6 +410,8 @@ admin = Admin(app, index_view=MyAdminIndexView())
 admin.add_view(AdminUserView(User, db.session))
 admin.add_view(MyModelView(Sport, db.session))
 admin.add_view(MyModelView(Role, db.session))
+admin.add_view(MyModelView(Klass, db.session))
+admin.add_link(MenuLink(name='Logout', category='', url="/logout"))
 
 if __name__ == "__main__":
     app.run(debug=True)
