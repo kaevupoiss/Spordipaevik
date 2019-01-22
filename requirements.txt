@@ -4,6 +4,7 @@ flask_sqlalchemy
 sqlalchemy
 datetime
 wtforms
+wtforms_alchemy
 werkzeug
 flask_login
 flask_security

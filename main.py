@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 from datetime import datetime
 from wtforms import Form, BooleanField, StringField, PasswordField, SelectField, validators
+from wtforms_alchemy.fields import QuerySelectField
 from wtforms.fields.html5 import DateField
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin
@@ -98,7 +99,7 @@ class Sport(db.Model):
     tasks = db.relationship('Task', backref=db.backref('sport', lazy=True))
 
     def __repr__(self):
-        return self.sport
+        return self.sport + ' ' + self.type
 
 class Training(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -123,6 +124,10 @@ class Klass(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     klass = db.Column(db.String(8))
     tasks = db.relationship('Task', backref=db.backref('klass', lazy=True))
+
+    def __repr__(self):
+        return '%r klass' % self.klass
+
 
 #initialize SQLAlchemyUserDatastore and flask_security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
@@ -198,72 +203,24 @@ class NewLog(Form):
     #day_posted = DateField('Soorituse kuupäev', format='%Y-%m-%d')
 
 
-
-class MyModelView(ModelView):
-    def is_accessible(self):
-        return current_user.is_authenticated and current_user.has_role('admin')
-
-    def inaccessible_callback(self, name, **kwargs):
-        return redirect(url_for('index'), next=request.path)
-
-class AdminUserView(ModelView):
-    # Don't display the password on the list of Users
-    column_exclude_list = ('password',)
-
-    # Don't include the standard password field when creating or editing a User (but see below)
-    form_excluded_columns = ('password',)
-
-    # Automatically display human-readable names for the current and available Roles when creating or editing a User
-    column_auto_select_related = True
-
-    def is_accessible(self):
-        return current_user.is_authenticated and current_user.has_role('admin')
-
-    def inaccessible_callback(self, name, **kwargs):
-        return redirect(url_for('index'), next=request.path)
-
-    def scaffold_form(self):
-
-        form_class = super(AdminUserView, self).scaffold_form()
-
-        # Add a password field, naming it "password2" and labeling it "New Password".
-        form_class.password2 = PasswordField('New Password')
-        return form_class
-
-    # This callback executes when the user saves changes to a newly-created or edited User
-    def on_model_change(self, form, model, is_created):
-
-        # If the password field isn't blank...
-        if len(model.password2):
-
-            # ... then encrypt the new password prior to storing it in the database.
-            model.password = generate_password_hash(model.password2, method='sha256')
-
-
-class MyAdminIndexView(AdminIndexView):
-    def is_accessible(self):
-        return current_user.is_authenticated and (current_user.has_role('admin')
-                                                  or current_user.has_role('teacher'))
-
-    def inaccessible_callback(self, name, **kwargs):
-        return redirect(url_for('index'), next = request.path)
-
-    @expose('/')
-    def index(self):
-        return self.render('admin/index.html')
-
 @app.route("/", methods=['POST', 'GET'])
 def index():
+
     if current_user.is_authenticated and (current_user.has_role('admin') or current_user.has_role('teacher')):
         return redirect('/admin')
     elif current_user.is_authenticated and current_user.has_role('end-user'):
         return redirect(url_for('home'))
 
     form = LoginForm(request.form)
+
     if form.validate() and request.method == 'POST':
+
         user = User.query.filter_by(email=form.email.data).first()
+
         if user:
+
             if check_password_hash(user.password, form.password.data):
+
                 login_user(user, remember=form.remember.data)
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
 
@@ -271,9 +228,12 @@ def index():
                     return redirect('/admin')
                 else:
                     return redirect(url_for('home'))
+
         return '<h1>Invalid username or password</h1>'
 
     return render_template('index.html', form=form)
+
+
 
 @app.route("/home")
 @login_required
@@ -290,10 +250,14 @@ def home():
                            name = name,
                            log_list = log_list)
 
+
+
 @app.route("/treeningud", methods=['POST', 'GET'])
 @login_required
 def treeningud():
+
     form = TrainingsForm(request.form)
+
     sport_choices = Sport.query.filter_by(type='')
     form.sport.choices = [(s.id, s.sport) for s in sport_choices.all()]
     form.period.choices = [(str(i), str(i) + ' aastat') for i in range(1, 15)]
@@ -301,38 +265,52 @@ def treeningud():
 
     trainings_list = Training.query.filter_by(user_id=current_user.id).all()
     if 'remove_training' in request.form and request.method == 'POST':
+
         Training.query.filter_by(id=request.form['remove_training']).delete()
         db.session.commit()
+
         return redirect(url_for('treeningud'))
 
     if form.validate() and request.method == 'POST':
+
         if form.active.data == 'N':
             years_ago = form.years_ago.data
         else:
             years_ago = ''
+
         if form.competitions.data == 'Y':
             comp = True
         else:
             comp = False
+
         training = Training(user_id = current_user.id,
                             sport_id = form.sport.data,
                             comp = comp,
                             years = form.period.data,
                             years_ago = years_ago)
+
         db.session.add(training)
         db.session.commit()
+
         return redirect(url_for('treeningud'))
+
     return render_template('treeningud.html', form=form, trainings_list=trainings_list)
+
+
 
 @app.route("/seaded")
 @login_required
 def seaded():
     return render_template('seaded.html')
 
+
+
 @app.route("/statistika")
 @login_required
 def statistika():
     return render_template('statistika.html')
+
+
 
 @app.route("/uus_tulemus", methods=['POST', 'GET'])
 @login_required
@@ -353,6 +331,8 @@ def uus_tulemus():
         return redirect(url_for('uus_tulemus'))
     return render_template('uus_tulemus.html', form=form)
 
+
+
 @app.route('/new_log/<sport_id>')
 @login_required
 def new_log(sport_id):
@@ -370,6 +350,9 @@ def new_log(sport_id):
 
     return jsonify({'types' : typeArray})
 
+
+
+#Maybe the admin sport module will fail, idk..
 '''
 @app.route("/new_sport", methods=['POST', 'GET'])
 def new_sport():
@@ -382,7 +365,8 @@ def new_sport():
     return render_template('new_sport.html', form = form)
 '''
 
-#Registreerimine töötab!
+
+
 @app.route("/register", methods=['POST', 'GET'])
 def register():
     form = RegistrationForm(request.form)
@@ -397,6 +381,8 @@ def register():
         return redirect(url_for('index'))
     return render_template('register.html', form=form)
 
+
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -406,12 +392,116 @@ def logout():
     identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
     return redirect(url_for('index'))
 
+
+
+class AdminModelView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.has_role('admin')
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('index'), next=request.path)
+
+class TeacherModelView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and (current_user.has_role('teacher') or
+                                                  current_user.has_role('admin'))
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('index'), next=request.path)
+
+class TeacherTaskView(ModelView):
+    form_excluded_columns = ('sport',)
+
+    column_auto_select_related = True
+
+    def is_accessible(self):
+        return current_user.is_authenticated and (current_user.has_role('teacher') or
+                                                  current_user.has_role('admin'))
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('index'), next=request.path)
+
+    def scaffold_form(self):
+        form_class = super(TeacherTaskView, self).scaffold_form()
+
+        sport_choices = Sport.query.filter_by(type='')
+
+        #form_class.sport2 = QuerySelectField('Sport', query_factory=sport_choices, allow_blank=True)
+        #form_class.type = QuerySelectField('Type', query_factory=Sport.query.filter_by(sport=sport_choices.first().sport), allow_blank=True)
+
+        form_class.sport2 = SelectField('Sport')
+        form_class.type = SelectField('Type')
+
+        form_class.sport2.choices = [(sport.id, sport.sport) for sport in sport_choices.all()]
+        form_class.type.choices = [(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()]
+
+        return form_class
+
+    def on_model_change(self, form, model, is_created):
+
+        if len(model.type):
+
+            model.sport = model.type
+
+
+class AdminUserView(ModelView):
+    # Don't display the password on the list of Users
+    column_exclude_list = ('password',)
+
+    # Don't include the standard password field when creating or editing a User
+    form_excluded_columns = ('password',)
+
+    # Automatically display human-readable names for the current and available Roles when creating or editing a User
+    column_auto_select_related = True
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.has_role('admin')
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('index'), next=request.path)
+
+    def scaffold_form(self):
+
+        form_class = super(AdminUserView, self).scaffold_form()
+
+        # Add a password field, naming it "password2" and labeling it "New Password".
+        form_class.password2 = PasswordField('New Password')
+
+        return form_class
+
+    # This callback executes when the user saves changes to a newly-created or edited User
+    def on_model_change(self, form, model, is_created):
+
+        # If the password field isn't blank...
+        if len(model.password2):
+
+            # ... then encrypt the new password prior to storing it in the database.
+            model.password = generate_password_hash(model.password2, method='sha256')
+
+
+class MyAdminIndexView(AdminIndexView):
+    def is_accessible(self):
+        return current_user.is_authenticated and (current_user.has_role('admin')
+                                               or current_user.has_role('teacher'))
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('index'), next = request.path)
+
+    @expose('/')
+    def index(self):
+        return self.render('admin/index.html')
+
+
+
 admin = Admin(app, index_view=MyAdminIndexView())
 admin.add_view(AdminUserView(User, db.session))
-admin.add_view(MyModelView(Sport, db.session))
-admin.add_view(MyModelView(Role, db.session))
-admin.add_view(MyModelView(Klass, db.session))
+admin.add_view(AdminModelView(Sport, db.session))
+admin.add_view(AdminModelView(Role, db.session))
+admin.add_view(AdminModelView(Klass, db.session))
+admin.add_view(TeacherTaskView(Task, db.session))
 admin.add_link(MenuLink(name='Logout', category='', url="/logout"))
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
