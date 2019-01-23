@@ -426,14 +426,8 @@ class TeacherTaskView(ModelView):
 
         sport_choices = Sport.query.filter_by(type='')
 
-        #form_class.sport2 = QuerySelectField('Sport', query_factory=sport_choices, allow_blank=True)
-        #form_class.type = QuerySelectField('Type', query_factory=Sport.query.filter_by(sport=sport_choices.first().sport), allow_blank=True)
-
-        form_class.sport2 = SelectField('Sport')
-        form_class.type = SelectField('Type')
-
-        form_class.sport2.choices = [(sport.id, sport.sport) for sport in sport_choices.all()]
-        form_class.type.choices = [(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()]
+        form_class.sport2 = SelectField('Sport', choices=[(sport.id, sport.sport) for sport in sport_choices.all()])
+        form_class.type = SelectField('Type', choices=[(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()])
 
         return form_class
 
@@ -442,6 +436,28 @@ class TeacherTaskView(ModelView):
         if len(model.type):
 
             model.sport = model.type
+
+    @expose('/task/new/')
+    def task(self):
+        return self.render('admin/task.html')
+
+    @expose('/task/new/<sport_id>')
+    @login_required
+    def new_task(sport_id):
+        sport = Sport.query.filter_by(id=sport_id).first()
+
+        types = Sport.query.filter_by(sport=sport.sport).all()
+
+        typeArray = []
+
+        for type in types:
+            typeObj = {}
+            typeObj['id'] = type.id
+            typeObj['type'] = type.type
+            typeArray.append(typeObj)
+
+        return jsonify({'types' : typeArray})
+
 
 
 class AdminUserView(ModelView):
