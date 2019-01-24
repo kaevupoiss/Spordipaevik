@@ -343,7 +343,7 @@ def new_log(sport_id):
         typeArray.append(typeObj)
 
     return jsonify({'types' : typeArray})
-    
+
 
 
 @app.route("/register", methods=['POST', 'GET'])
@@ -389,7 +389,7 @@ class TeacherModelView(ModelView):
         return redirect(url_for('index'), next=request.path)
 
 class TeacherTaskView(ModelView):
-    form_excluded_columns = ('sport', 'logs',)
+    form_excluded_columns = ('logs', 'sport',)
 
     column_auto_select_related = True
 
@@ -405,17 +405,14 @@ class TeacherTaskView(ModelView):
 
         sport_choices = Sport.query.filter_by(type='')
 
-        form_class.sport2 = SelectField('Sport', choices=[(sport.id, sport.sport) for sport in sport_choices.all()])
-        form_class.type = SelectField('Type', choices=[(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()])
+        form_class.sport2 = SelectField('Sport', choices=[(sport.id, sport.sport) for sport in sport_choices.all()], coerce=int)
+        form_class.type = SelectField('Type', choices=[(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()], coerce=int)
 
         return form_class
 
     def on_model_change(self, form, model, is_created):
 
-        if len(model.type):
-
-            model.sport = model.type
-
+        model.sport = model.type
 
     def render(self, template, **kwargs):
 
