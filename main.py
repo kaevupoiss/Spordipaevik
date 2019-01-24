@@ -190,12 +190,6 @@ class TrainingsForm(Form):
     active = SelectField('Praegu käid?', choices=[('Y', 'Jah'), ('N', 'Ei')], coerce=str)
     years_ago = SelectField('Mitu aastat tagasi?', coerce=str)
 
-'''
-class InsertSport(Form):
-    sport = StringField('Sport')
-    type = StringField('Type')
-'''
-
 class NewLog(Form):
     sport = SelectField('Spordiala?', coerce=int)
     type = SelectField('Täpsemalt?', coerce=int)
@@ -328,7 +322,7 @@ def uus_tulemus():
                   result = form.result.data)
         db.session.add(log)
         db.session.commit()
-        return redirect(url_for('uus_tulemus'))
+        return redirect(url_for('home'))
     return render_template('uus_tulemus.html', form=form)
 
 
@@ -349,22 +343,7 @@ def new_log(sport_id):
         typeArray.append(typeObj)
 
     return jsonify({'types' : typeArray})
-
-
-
-#Maybe the admin sport module will fail, idk..
-'''
-@app.route("/new_sport", methods=['POST', 'GET'])
-def new_sport():
-    form = InsertSport(request.form)
-    if form.validate() and request.method == 'POST':
-        sport = Sport(sport=form.sport.data,
-                      type=form.type.data)
-        db.session.add(sport)
-        db.session.commit()
-    return render_template('new_sport.html', form = form)
-'''
-
+    
 
 
 @app.route("/register", methods=['POST', 'GET'])
@@ -410,7 +389,7 @@ class TeacherModelView(ModelView):
         return redirect(url_for('index'), next=request.path)
 
 class TeacherTaskView(ModelView):
-    form_excluded_columns = ('sport',)
+    form_excluded_columns = ('sport', 'logs',)
 
     column_auto_select_related = True
 
@@ -437,27 +416,12 @@ class TeacherTaskView(ModelView):
 
             model.sport = model.type
 
-    @expose('/task/new/')
-    def task(self):
-        return self.render('admin/task.html')
 
-    @expose('/task/new/<sport_id>')
-    @login_required
-    def new_task(sport_id):
-        sport = Sport.query.filter_by(id=sport_id).first()
+    def render(self, template, **kwargs):
 
-        types = Sport.query.filter_by(sport=sport.sport).all()
+        self.extra_js = [url_for("static", filename="dynamic.js")]
 
-        typeArray = []
-
-        for type in types:
-            typeObj = {}
-            typeObj['id'] = type.id
-            typeObj['type'] = type.type
-            typeArray.append(typeObj)
-
-        return jsonify({'types' : typeArray})
-
+        return super(TeacherTaskView, self).render(template, **kwargs)
 
 
 class AdminUserView(ModelView):

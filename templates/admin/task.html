@@ -2,14 +2,16 @@
 
 {% block body %}
 {{ super() }}
+<h1>HEY!!!!</h1>
 <script type="text/javascript">
     let sport_select = document.getElementById('sport2');
     let type_select = document.getElementById('type');
 
     sport_select.onchange = function() {
-      sport = sport_select.value;
+      alert('change');
+      /*\sport = sport_select.value;
 
-      fetch('/new_task/' + sport).then(function(response) {
+      fetch('/task/' + sport).then(function(response) {
 
         response.json().then(function(data) {
             let optionHTML = '';
@@ -20,7 +22,7 @@
 
             type_select.innerHTML = optionHTML;
         });
-      });
+      });*/
     }
 </script>
 {% endblock body %}
