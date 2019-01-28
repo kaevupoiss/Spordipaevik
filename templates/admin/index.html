@@ -1,5 +1,5 @@
 {% extends 'admin/master.html' %}
-
+{% from "_formhelpers.html" import render_field %}
 
 {% block head_css %}
 {{ super() }}
@@ -9,5 +9,38 @@
 
 {% block body %}
 {{ super() }}
-<h1>Hello!</h1>
+<form id="uus_logi" method="post">
+  <dl>
+
+    {{ render_field(form.sport) }}
+    {{ render_field(form.type) }}
+    {{ render_field(form.description) }}
+    {{ render_field(form.klass) }}
+
+  </dl>
+  <button type="submit" name="uus_logi">Lisa ülesanne</button>
+</form>
+
+
+<script type="text/javascript">
+    let sport_select = document.getElementById('sport');
+    let type_select = document.getElementById('type');
+
+    sport_select.onchange = function() {
+      sport = sport_select.value;
+
+      fetch('/new_log/' + sport).then(function(response) {
+
+        response.json().then(function(data) {
+            let optionHTML = '';
+
+            for (let type of data.types) {
+              optionHTML += '<option value="' + type.id + '">' + type.type + '</option>';
+            };
+
+            type_select.innerHTML = optionHTML;
+        });
+      });
+    }
+</script>
 {% endblock body %}

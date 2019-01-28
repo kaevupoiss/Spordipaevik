@@ -196,6 +196,13 @@ class NewLog(Form):
     result = StringField('Tulemus')
     #day_posted = DateField('Soorituse kuupäev', format='%Y-%m-%d')
 
+class NewTask(Form):
+    sport = SelectField('Spordiala?', coerce=int)
+    type = SelectField('Täpsemalt?', coerce=int)
+    klass = SelectField('Klass', coerce=int)
+    description = StringField('Kommentaar')
+
+
 
 @app.route("/", methods=['POST', 'GET'])
 def index():
@@ -344,6 +351,29 @@ def new_log(sport_id):
 
     return jsonify({'types' : typeArray})
 
+@app.route('/new_task', methods=['POST', 'GET'])
+@login_required
+def new_task():
+    if not (current_user.has_role('teacher') or current_user.has_role('admin')):
+        return redirect(url_for('index'))
+
+    form = NewTask(request.form)
+
+    sport_choices = Sport.query.filter_by(type='')
+    form.sport.choices = [(sport.id, sport.sport) for sport in sport_choices.all()]
+    form.type.choices = [(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()]
+    form.klass.choices = [(klass.id, klass.klass) for klass in Klass.query.all()]
+
+    if request.method == 'POST':
+        task = Task(klass_id = form.klass.data,
+                  sport_id = form.type.data,
+                  time_tasked = datetime.now(),
+                  description = form.description.data)
+        db.session.add(task)
+        db.session.commit()
+        return redirect('/admin/task')
+    return render_template('task.html', form=form)
+
 
 
 @app.route("/register", methods=['POST', 'GET'])
@@ -378,7 +408,7 @@ class AdminModelView(ModelView):
         return current_user.is_authenticated and current_user.has_role('admin')
 
     def inaccessible_callback(self, name, **kwargs):
-        return redirect(url_for('index'), next=request.path)
+        return redirect(url_for('index'))
 
 class TeacherModelView(ModelView):
     def is_accessible(self):
@@ -386,8 +416,9 @@ class TeacherModelView(ModelView):
                                                   current_user.has_role('admin'))
 
     def inaccessible_callback(self, name, **kwargs):
-        return redirect(url_for('index'), next=request.path)
+        return redirect(url_for('index'))
 
+'''
 class TeacherTaskView(ModelView):
     form_excluded_columns = ('logs', 'sport',)
 
@@ -400,26 +431,28 @@ class TeacherTaskView(ModelView):
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('index'), next=request.path)
 
+
     def scaffold_form(self):
         form_class = super(TeacherTaskView, self).scaffold_form()
 
         sport_choices = Sport.query.filter_by(type='')
 
         form_class.sport2 = SelectField('Sport', choices=[(sport.id, sport.sport) for sport in sport_choices.all()], coerce=int)
-        form_class.type = SelectField('Type', choices=[(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()], coerce=int)
+        form_class.type = SelectField('Type', choices=[(int(type.id), type.type) for type in Sport.query.filter_by(sport='Kergejõustik').all()], coerce=int)
 
         return form_class
 
+
     def on_model_change(self, form, model, is_created):
 
-        model.sport = model.type
+        model.sport_id = model.type
 
     def render(self, template, **kwargs):
 
         self.extra_js = [url_for("static", filename="dynamic.js")]
 
         return super(TeacherTaskView, self).render(template, **kwargs)
-
+'''
 
 class AdminUserView(ModelView):
     # Don't display the password on the list of Users
@@ -462,11 +495,27 @@ class MyAdminIndexView(AdminIndexView):
                                                or current_user.has_role('teacher'))
 
     def inaccessible_callback(self, name, **kwargs):
-        return redirect(url_for('index'), next = request.path)
+        return redirect(url_for('index'))
 
-    @expose('/')
+    @expose('/', methods=['POST', 'GET'])
     def index(self):
-        return self.render('admin/index.html')
+
+        form = NewTask(request.form)
+
+        sport_choices = Sport.query.filter_by(type='')
+        form.sport.choices = [(sport.id, sport.sport) for sport in sport_choices.all()]
+        form.type.choices = [(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()]
+        form.klass.choices = [(klass.id, klass.klass) for klass in Klass.query.all()]
+
+        if request.method == 'POST':
+            task = Task(klass_id = form.klass.data,
+                      sport_id = form.type.data,
+                      time_tasked = datetime.now(),
+                      description = form.description.data)
+            db.session.add(task)
+            db.session.commit()
+            return redirect('/admin')
+        return self.render('admin/index.html', form=form)
 
 
 
@@ -475,7 +524,8 @@ admin.add_view(AdminUserView(User, db.session))
 admin.add_view(AdminModelView(Sport, db.session))
 admin.add_view(AdminModelView(Role, db.session))
 admin.add_view(AdminModelView(Klass, db.session))
-admin.add_view(TeacherTaskView(Task, db.session))
+admin.add_view(AdminModelView(Task, db.session))
+admin.add_link(MenuLink(name='Uus ülesanne', url='/new_task'))
 admin.add_link(MenuLink(name='Logout', category='', url="/logout"))
 
 
