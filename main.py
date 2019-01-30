@@ -207,6 +207,11 @@ class NewTask(Form):
 class SettingsForm(Form):
     isikukood = StringField('Isikukood', [validators.Length(min=11, max=11, message='See ei ole isikukood')])
     klass = SelectField('Klass', coerce=int)
+    email = StringField('Emaili Aadress', [
+        validators.Length(min=6, max=64, message='Emaili aadress on liiga lühike'),
+        validators.Email(message='See ei ole emaili aadress'),
+        validators.DataRequired(message='See väli on kohustuslik')
+    ])
 
 @app.route("/", methods=['POST', 'GET'])
 def index():
@@ -317,6 +322,8 @@ def seaded():
         form.klass.data = current_user.klass
     if current_user.isikukood:
         form.isikukood.data = current_user.isikukood
+    if current_user.email:
+        form.email.data = current_user.email
 
     if form.validate() and request.method == 'POST':
 
