@@ -1,14 +1,32 @@
-{% extends 'main.html' %}
+{% extends 'admin/master.html' %}
 {% from "_formhelpers.html" import render_field %}
 
-{% block body %}
+{% block head_css %}
+{{ super() }}
+<link href="{{ url_for('static', filename='sb.admiin-2.css') }}" rel='stylesheet'>
+{% endblock head_css %}
 
+
+{% block body %}
+{{ super() }}
+<ul class="nav nav-tabs actions-nav">
+  <li>
+    <a href="..">List</a>
+  </li>
+
+
+  <li class='active'>
+    <a href="../new" title="Create New Task">Lisa</a></li>
+</ul>
 <form id="uus_logi" method="post">
   <dl>
 
     {{ render_field(form.sport) }}
+    <div id="täpsemaltdiv">
     {{ render_field(form.type) }}
+    </div>
     {{ render_field(form.description) }}
+    {{ render_field(form.deadline) }}
     {{ render_field(form.klass) }}
 
   </dl>
@@ -36,5 +54,6 @@
         });
       });
     }
+
 </script>
 {% endblock body %}
