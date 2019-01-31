@@ -520,13 +520,18 @@ class TrainingsView(BaseView):
 
     @expose('/', methods=['POST', 'GET'])
     def index(self):
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 21c9048bdade552f28ee265e8fb4e262d7413def
         return self.render('admin/treeningud.html')
 
 admin = Admin(app, index_view=MyAdminIndexView())
 admin.add_view(AdminUserView(User, db.session))
 admin.add_view(AdminModelView(Sport, db.session))
 admin.add_view(AdminModelView(Role, db.session))
+#admin.add_view(AdminModelView(roles_users, db.session))
 admin.add_view(AdminModelView(Klass, db.session))
 admin.add_view(TeacherTaskView(Task, db.session))
 admin.add_view(TrainingsView(name='Trennid', endpoint='treeningud'))
