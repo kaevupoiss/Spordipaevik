@@ -63,7 +63,7 @@ class User(UserMixin, db.Model):
     last_name = db.Column(db.String(20))
     email = db.Column(db.String(64), unique=True)
     password = db.Column(db.String(80))
-    klass = db.Column(db.Integer, db.ForeignKey('klass.id'))
+    klass_id = db.Column(db.Integer, db.ForeignKey('klass.id'))
     isikukood = db.Column(db.String(11))
     active = db.Column(db.Boolean())
     confirmed_at = db.Column(db.DateTime())
@@ -125,6 +125,7 @@ class Klass(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     klass = db.Column(db.String(8))
     tasks = db.relationship('Task', backref=db.backref('klass', lazy=True))
+    users = db.relationship('User', backref=db.backref('klass', lazy=True))
 
     def __repr__(self):
         return '%r klass' % self.klass
@@ -209,7 +210,7 @@ class SettingsForm(Form):
     klass = SelectField('Klass', coerce=int)
     email = StringField('Emaili Aadress', [
         validators.Length(min=6, max=64, message='Emaili aadress on liiga lühike'),
-        validators.Email(message='See ei ole emaili aadress'),
+        #validators.Email(message='See ei ole emaili aadress'),
         validators.DataRequired(message='See väli on kohustuslik')
     ])
 
@@ -327,8 +328,9 @@ def seaded():
 
     if form.validate() and request.method == 'POST':
 
-        current_user.klass = form.klass.data
+        current_user.klass_id = form.klass.data
         current_user.isikukood = form.isikukood.data
+        current_user.email = form.email.data
 
         db.session.commit()
         return redirect(url_for('seaded'))
@@ -468,6 +470,8 @@ class AdminUserView(ModelView):
     # Automatically display human-readable names for the current and available Roles when creating or editing a User
     column_auto_select_related = True
 
+    column_list = ('first_name', 'last_name', 'email', 'roles', 'isikukood', 'klass', 'active', 'confirmed_at')
+
     def is_accessible(self):
         return current_user.is_authenticated and current_user.has_role('admin')
 
@@ -516,12 +520,14 @@ class TrainingsView(BaseView):
 
     @expose('/', methods=['POST', 'GET'])
     def index(self):
+
         return self.render('admin/treeningud.html')
 
 admin = Admin(app, index_view=MyAdminIndexView())
 admin.add_view(AdminUserView(User, db.session))
 admin.add_view(AdminModelView(Sport, db.session))
 admin.add_view(AdminModelView(Role, db.session))
+#admin.add_view(AdminModelView(roles_users, db.session))
 admin.add_view(AdminModelView(Klass, db.session))
 admin.add_view(TeacherTaskView(Task, db.session))
 admin.add_view(TrainingsView(name='Trennid', endpoint='treeningud'))
