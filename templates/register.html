@@ -13,24 +13,24 @@
   </head>
   <body>
     <div class="wrapper">
+      <div class="bodywrapper">
+        <h1>SP</h1>
 
-      <h1>SP</h1>
+        <form id="login" method="POST">
+          <dl>
+            {{ render_field(form.first_name) }}
+            {{ render_field(form.last_name) }}
+            {{ render_field(form.email) }}
+            {{ render_field(form.password) }}
+            {{ render_field(form.confirm) }}
+          </dl>
+          <button type="submit" name="register">REGISTREERI</button>
+        </form>
 
-      <form id="login" method="POST">
-        <dl>
-          {{ render_field(form.first_name) }}
-          {{ render_field(form.last_name) }}
-          {{ render_field(form.email) }}
-          {{ render_field(form.password) }}
-          {{ render_field(form.confirm) }}
-        </dl>
-        <button type="submit" name="login">LOGI SISSE</button>
-      </form>
-
-      <a href="{{ url_for('register') }}">
-      <button type="button" name="login">REGISTREERI</button>
-      </a>
-
+        <a href="{{ url_for('index') }}">
+        <button type="button" name="login">TAGASI</button>
+        </a>
+      </div>
     </div>
 
     <script type="text/javascript">
