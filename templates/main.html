@@ -7,15 +7,41 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="static/css/materialize.css"  media="screen,projection"/>
-    <link href="../static/style.css" rel="stylesheet" type="text/css">
+    <link href="../static/css/style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
     <div class="wrapper">
-      {% block body %}{% endblock %}
+      <div class="navbar-fixed">
+        <nav>
+          <div class="nav-wrapper">
+            <a href="{{ url_for('home') }}" class="brand-logo center">{{ current_user.email }}</a>
+            <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <ul class="right">
+              <li><a href="#" onClick="location.href=location.href"><i class="material-icons">refresh</i></a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+
+      <ul id="slide-out" class="sidenav">
+          <li><a href="{{ url_for('home') }}">Avaleht</a></li>
+          <li><a href="{{ url_for('seaded') }}">Seaded</a></li>
+          <li><a href="{{ url_for('treeningud') }}">Treeningud</a></li>
+          <li><a href="{{ url_for('statistika') }}">Statistika</a></li>
+          <li><a href="{{ url_for('logout') }}">Logi välja</a></li>
+      </ul>
+      <div class="bodywrapper">
+        {% block body %}{% endblock %}
+      </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="static/js/materialize.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('.sidenav').sidenav();
+      });
+    </script>
     {% block script %}{% endblock %}
   </body>
 </html>
