@@ -13,6 +13,7 @@ from flask_admin import Admin, AdminIndexView, expose, BaseView
 from flask_admin.menu import MenuLink
 from flask_admin.contrib.sqla import ModelView
 
+
 #initialize Flask
 app = Flask(__name__)
 #secret key
@@ -24,6 +25,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 #initialize SQLAlchemy
 db = SQLAlchemy(app)
+
+
 
 #initialize login manager
 login_manager = LoginManager()
@@ -520,11 +523,7 @@ class TrainingsView(BaseView):
 
     @expose('/', methods=['POST', 'GET'])
     def index(self):
-<<<<<<< HEAD
-        
-=======
 
->>>>>>> 21c9048bdade552f28ee265e8fb4e262d7413def
         return self.render('admin/treeningud.html')
 
 admin = Admin(app, index_view=MyAdminIndexView())

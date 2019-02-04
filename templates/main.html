@@ -3,11 +3,19 @@
   <head>
     <meta name="viewport" content="width=viewport-width, initial-scale=1.0">
     <title>Python Flask</title>
+    <!--Imprort Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="static/css/materialize.css"  media="screen,projection"/>
     <link href="../static/style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
     <div class="wrapper">
       {% block body %}{% endblock %}
     </div>
+
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="static/js/materialize.js"></script>
+    {% block script %}{% endblock %}
   </body>
 </html>

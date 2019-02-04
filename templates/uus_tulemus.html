@@ -14,11 +14,26 @@
       {{ render_field(form.sport) }}
       {{ render_field(form.type) }}
       {{ render_field(form.result) }}
-      {# render_field(form.day_posted) #}
     </dl>
     <button type="submit" name="uus_logi">Lisa sooritus</button>
   </form>
+{% endblock %}
+{% block script %}
   <script type="text/javascript">
+    $(document).ready(function() {
+      $('select').formSelect();
+    });
+
+    // 1) setup listener for custom event to re-initialize on change
+    $('select').on('contentChanged', function() {
+      $(this).formSelect();
+    });
+
+
+  </script>
+
+  <script type="text/javascript">
+
       let sport_select = document.getElementById('sport');
       let type_select = document.getElementById('type');
 
@@ -31,10 +46,13 @@
               let optionHTML = '';
 
               for (let type of data.types) {
-                optionHTML += '<option value="' + type.id + '">' + type.type + '</option>';
+                //optionHTML += '<option value="' + type.id + '">' + type.type + '</option>';
+                var $newOpt = $("<option>").attr('value',type.id).text(type.type);
+                $('#type').append($newOpt);
+                //$('#type').trigger('contentChanged');
               };
-
-              type_select.innerHTML = optionHTML;
+              $('#type').trigger('contentChanged');
+              //type_select.innerHTML = optionHTML;
           });
         });
       }
