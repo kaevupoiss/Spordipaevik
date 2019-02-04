@@ -1,28 +1,42 @@
-{% extends "main.html" %}
-{% block body %}
 {% from "_formhelpers.html" import render_field %}
 
-<h1>SP</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=viewport-width, initial-scale=1.0">
+    <title>Python Flask</title>
+    <!--Imprort Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="static/css/materialize.css"  media="screen,projection"/>
+    <link href="../static/css/style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div class="wrapper">
 
-<form id="login" method="POST">
-  <dl>
-    {{ render_field(form.email) }}
-    {{ render_field(form.password) }}
-    {{ render_field(form.remember) }}
-  </dl>
-  <button type="submit" name="login">LOGI SISSE</button>
-</form>
+      <h1>SP</h1>
 
-<a href="{{ url_for('register') }}">
-<button type="button" name="login">REGISTREERI</button>
-</a>
+      <form id="login" method="POST">
+        <dl>
+          {{ render_field(form.email) }}
+          {{ render_field(form.password) }}
+          {{ render_field(form.remember) }}
+        </dl>
+        <button type="submit" name="login">LOGI SISSE</button>
+      </form>
 
-{% endblock %}
+      <a href="{{ url_for('register') }}">
+      <button type="button" name="login">REGISTREERI</button>
+      </a>
 
-{% block script %}
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $('select').formSelect();
-    });
-  </script>
-{% endblock %}
+    </div>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('select').formSelect();
+      });
+    </script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="static/js/materialize.js"></script>
+  </body>
+</html>
