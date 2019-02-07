@@ -1,4 +1,4 @@
-{% from "_formhelpers.html" import render_field %}
+{% from "_formhelpers.html" import render_inputfield %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,24 +12,22 @@
     <link href="../static/css/style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <div class="wrapper">
+    <a href="{{ url_for('index') }}" class="btn-floating btn-large" id="backbutton"><i class="material-icons">arrow_back</i></a>
+    <div class="container verticalalign">
       <div class="bodywrapper">
-        <h1>SP</h1>
+        <div class="row">
+          <h1 class="center-align" id="logo">SP</h1>
+          <br>
+          <form id="login" method="POST">
+            {{ render_inputfield(form.first_name) }}
+            {{ render_inputfield(form.last_name) }}
+            {{ render_inputfield(form.email) }}
+            {{ render_inputfield(form.password) }}
+            {{ render_inputfield(form.confirm) }}
+            <button class="btn col s12" type="submit" name="register">REGISTREERI</button>
+          </form>
 
-        <form id="login" method="POST">
-          <dl>
-            {{ render_field(form.first_name) }}
-            {{ render_field(form.last_name) }}
-            {{ render_field(form.email) }}
-            {{ render_field(form.password) }}
-            {{ render_field(form.confirm) }}
-          </dl>
-          <button type="submit" name="register">REGISTREERI</button>
-        </form>
-
-        <a href="{{ url_for('index') }}">
-        <button type="button" name="login">TAGASI</button>
-        </a>
+        </div>
       </div>
     </div>
 

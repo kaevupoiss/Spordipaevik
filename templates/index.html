@@ -1,4 +1,4 @@
-{% from "_formhelpers.html" import render_field %}
+{% from "_formhelpers.html" import render_inputfield %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,22 +12,26 @@
     <link href="../static/css/style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <div class="wrapper">
+    <div class="container verticalalign">
       <div class="bodywrapper">
-        <h1>SP</h1>
-
-        <form id="login" method="POST">
-          <dl>
-            {{ render_field(form.email) }}
-            {{ render_field(form.password) }}
-            {{ render_field(form.remember) }}
-          </dl>
-          <button type="submit" name="login">LOGI SISSE</button>
-        </form>
-
-        <a href="{{ url_for('register') }}">
-        <button type="button" name="login">REGISTREERI</button>
-        </a>
+        <div class="row">
+          <h1 class="center-align" id="logo">SP</h1>
+          <br>
+          <form id="login" method="POST">
+            {{ render_inputfield(form.email) }}
+            {{ render_inputfield(form.password) }}
+            <div class="switch">
+              <label>
+                {{ form.remember.label }}
+                {{ form.remember }}
+                <span class="lever"></span>
+              </label>
+            </div>
+            <br>
+            <button class="btn col s6" type="submit" name="login">LOGI SISSE</button>
+          </form>
+          <a href="{{ url_for('register') }}" class="btn col s6">REGISTREERI</a>
+        </div>
       </div>
     </div>
 
