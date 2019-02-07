@@ -2,27 +2,16 @@
 {% from "_traininghelpers.html" import log_field %}
 
 {% block body %}
-
-  <div class="menu">
-    <h1>Menüü</h1>
-    <ul>
-      <a href="{{ url_for('seaded') }}"><li>Seaded</li></a>
-      <a href="{{ url_for('treeningud') }}"><li>Treeningud</li></a>
-      <a href="{{ url_for('statistika') }}"><li>Statistika</li></a>
-      <a href="{{ url_for('logout') }}"><li>Logi välja</li></a>
-    </ul>
-  </div>
-
   <div class="newentry">
     <a href="{{ url_for('uus_tulemus') }}"><button type="button" name="newentry">LISA TULEMUS</button></a>
   </div>
 
   <div class="content">
+    <ul>
     {% for log in log_list %}
-      <div>
         {{ log_field(log) }}
-      </div>
     {% endfor %}
+    </ul>
   </div>
 
 {% endblock %}

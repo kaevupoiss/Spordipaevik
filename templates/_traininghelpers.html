@@ -35,19 +35,23 @@
 {% endmacro %}
 
 {% macro log_field(log) %}
-  <h1>
-    {{ log.result }}
-  </h1>
+<li>
+  <div>
+    <div class="row">
+      <h1 class="col s6">
+        {{ log.result }}
+      </h1>
 
-  <h3>
-    {{ log.sport.type }}
-  </h3>
-
-  <p>
-    {{ log.time_posted }}
-  </p>
-
-  <form class="statistika" method="post">
-    <button type="submit" value="{{ log.id }}" name="statistics">Statistika</button>
-  </form>
+      <h4 class="col s6">
+        {{ log.sport.type }}
+      </h4>
+    </div>
+    <div class="row">
+      <p class="col s6">
+        {{ log.time_posted }}
+      </p>
+      <a href="/stats/{{ log.id }}" class="btn-small col s6 valign-wrapper">STATISTIKA</a>
+    </div>
+  </div>
+</li>
 {% endmacro %}

@@ -2,20 +2,14 @@
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 
-  <div class="header">
-    <a href="{{ url_for('home') }}">
-      <button type="button" name="back">Back</button>
-    </a>
-    <h1>LISA TULEMUS</h1>
-  </div>
+  <h1 class="center-align">LISA TULEMUS</h1>
 
   <form id="uus_logi" method="post">
-    <dl>
-      {{ render_field(form.sport) }}
-      {{ render_field(form.type) }}
-      {{ render_field(form.result) }}
-    </dl>
-    <button type="submit" name="uus_logi">Lisa sooritus</button>
+
+    {{ render_field(form.sport) }}
+    {{ render_field(form.type) }}
+    {{ render_field(form.result) }}
+    <button type="submit" name="uus_logi" class="btn">LISA SOORITUS</button>
   </form>
 {% endblock %}
 {% block script %}

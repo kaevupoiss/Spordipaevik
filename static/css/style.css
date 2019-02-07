@@ -9,6 +9,10 @@
   margin: 20px;
 }
 
+a#registreeri {
+  color: #26a69a;
+}
+
 .verticalalign {
   position: absolute;
   top: 50%;

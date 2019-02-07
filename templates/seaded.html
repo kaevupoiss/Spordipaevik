@@ -2,10 +2,7 @@
 {% block body %}
 {% from "_formhelpers.html" import render_field %}
 
-<h1>SEADED</h1>
-<a href="{{ url_for('home') }}">
-  <button type="button" name="back">Back</button>
-</a>
+<h1 class="center-align">SEADED</h1>
 
 <form id="settings" method="POST">
   <dl>
@@ -15,7 +12,7 @@
     {{ render_field(form.email) }}
 
   </dl>
-  <button type="submit" name="lisa_isikukood">Salvesta</button>
+  <button type="submit" name="lisa_isikukood" class="btn">Salvesta</button>
 </form>
 {% endblock %}
 

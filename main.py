@@ -534,7 +534,7 @@ class TrainingsView(BaseView):
 
         return self.render('admin/treeningud.html')
 
-admin = Admin(app, index_view=MyAdminIndexView())
+admin = Admin(app, index_view=MyAdminIndexView(), template_mode='bootstrap3')
 admin.add_view(AdminUserView(User, db.session))
 admin.add_view(AdminModelView(Sport, db.session))
 admin.add_view(AdminModelView(Role, db.session))
@@ -543,7 +543,7 @@ admin.add_view(AdminModelView(Klass, db.session))
 admin.add_view(TeacherTaskView(Task, db.session))
 admin.add_view(TrainingsView(name='Trennid', endpoint='treeningud'))
 #admin.add_link(MenuLink(name='Uus ülesanne', url='/new_task'))
-admin.add_link(MenuLink(name='Logout', category='', url="/logout"))
+admin.add_link(MenuLink(name='Logi välja', category='', url="/logout"))
 
 
 
