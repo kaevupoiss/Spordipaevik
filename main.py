@@ -167,10 +167,15 @@ def before_first_request():
     user_datastore.add_role_to_user('opetaja', 'teacher')
     db.session.commit()
 
+
+def validate_email(self, field): # here is where the magic is
+    if User.query.filter_by(email=field.data).first(): # check if in database
+        raise ValidationError("Sinu kasutaja on juba registreeritud")
+
 #Form creation
 class LoginForm(Form):
-    email = StringField('Emaili Aadress', [validators.DataRequired()])
-    password = PasswordField('Parool', [validators.DataRequired()])
+    email = StringField('Emaili Aadress', [validators.InputRequired(message='See väli on kohustuslik')])
+    password = PasswordField('Parool', [validators.InputRequired(message='See väli on kohustuslik')])
     remember = BooleanField('Jäta meelde')
 
 class RegistrationForm(Form):
@@ -179,14 +184,17 @@ class RegistrationForm(Form):
     email = StringField('Emaili Aadress', [
         validators.Length(min=6, max=64, message='Emaili aadress on liiga lühike'),
         validators.Email(message='See ei ole emaili aadress'),
-        validators.DataRequired(message='See väli on kohustuslik')
+        validators.InputRequired(message='See väli on kohustuslik'),
+        validate_email
     ])
     password = PasswordField('Parool', [
-        validators.DataRequired(message='See väli on kohustuslik'),
+        validators.InputRequired(message='See väli on kohustuslik'),
         validators.Length(min=8, max=80, message='Parool on liiga lühike'),
         validators.EqualTo('confirm', message='Paroolid peavad ühtima')
     ])
-    confirm = PasswordField('Parool uuesti', [validators.DataRequired(message='See väli on kohustuslik')])
+    confirm = PasswordField('Parool uuesti', [validators.InputRequired(message='See väli on kohustuslik')])
+
+
 
 class TrainingsForm(Form):
     sport = SelectField('Spordiala', coerce=int)
@@ -214,7 +222,7 @@ class SettingsForm(Form):
     email = StringField('Emaili Aadress', [
         validators.Length(min=6, max=64, message='Emaili aadress on liiga lühike'),
         #validators.Email(message='See ei ole emaili aadress'),
-        validators.DataRequired(message='See väli on kohustuslik')
+        validators.InputRequired(message='See väli on kohustuslik')
     ])
 
 @app.route("/", methods=['POST', 'GET'])
@@ -228,7 +236,7 @@ def index():
 
     form = LoginForm(request.form)
 
-    if form.validate() and request.method == 'POST':
+    if request.method == 'POST' and form.validate():
 
         user = User.query.filter_by(email=form.email.data).first()
 
@@ -289,7 +297,7 @@ def treeningud():
 
         return redirect(url_for('treeningud'))
 
-    if form.validate() and request.method == 'POST':
+    if request.method == 'POST' and form.validate():
 
         if form.active.data == 'N':
             years_ago = form.years_ago.data
@@ -329,7 +337,7 @@ def seaded():
     if current_user.email:
         form.email.data = current_user.email
 
-    if form.validate() and request.method == 'POST':
+    if request.method == 'POST' and form.validate():
 
         current_user.klass_id = form.klass.data
         current_user.isikukood = form.isikukood.data
@@ -390,7 +398,7 @@ def new_log(sport_id):
 @app.route("/register", methods=['POST', 'GET'])
 def register():
     form = RegistrationForm(request.form)
-    if form.validate() and request.method == 'POST':
+    if request.method == 'POST' and form.validate():
         hashed_password = generate_password_hash(form.password.data, method='sha256')
         user = User(first_name=form.first_name.data,
                     last_name=form.last_name.data,
