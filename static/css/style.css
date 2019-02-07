@@ -14,13 +14,21 @@
   top: 50%;
   left: 50%;
   margin-right: -50%;
-  transform: translate(-50%, -60%);
+  transform: translate(-50%, -50%);
 }
 
 @media only screen and (min-width: 601px) {
   .bodywrapper {
     width: 70%;
   }
+  .verticalalign {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -60%);
+  }
+
 }
 
 @media only screen and (min-width: 993px) {
