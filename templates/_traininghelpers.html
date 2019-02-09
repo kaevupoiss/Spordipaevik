@@ -1,37 +1,38 @@
 {% macro trainings_field(training) %}
-  <dt>Spordiala
-  <dd>
-    {{ training.sport.sport }}
-  </dd>
-  <dt>Kui kaua?
-  <dd>
-    {{ training.years|string + ' aastat' }}
-  </dd>
-  <dt>Võistlused?
-  <dd>
-    {% if training.comp %}
-      Jah
-    {% else %}
-      Ei
-    {% endif %}
-  </dd>
-  <dt>Praegu käid?
-  <dd>
-    {% if training.years_ago %}
-      Ei
-    {% else %}
-      Jah
-    {% endif %}
-  </dd>
-  {% if training.years_ago %}
-    <dt>Mitu aastat tagasi?
-    <dd>
-      {{ training.years_ago|string + ' aastat tagasi' }}
-    </dd>
-  {% endif %}
-  <form class="remove_training" method="post">
-    <button type="submit" value="{{ training.id }}" name="remove_training">Eemalda trenn</button>
-  </form>
+<br>
+<div class="input-field">
+  <select id="sport" name="sport" disabled><option>{{ training.sport.sport }}</option></select>
+  <label for="sport">Spordiala</label>
+</div>
+<div class="input-field">
+  <select id="howlong" name="sport" disabled><option>{{ training.years|string + ' aastat' }}</option></select>
+  <label for="howlong">Kui kaua?</label>
+</div>
+<div class="input-field">
+  <select id="comp" name="sport" disabled>
+      {% if training.comp %}<option>Jah</option>
+      {% else %}<option>Ei</option>
+      {% endif %}
+  </select>
+  <label for="comp">Võistlused?</label>
+</div>
+<div class="input-field">
+  <select id="active" name="sport" disabled>
+      {% if training.years_ago %}<option>Ei</option>
+      {% else %}<option>Jah</option>
+      {% endif %}
+  </select>
+  <label for="active">Praegu käid?</label>
+</div>
+{% if training.years_ago %}
+  <div class="input-field">
+    <select id="yago" name="sport" disabled><option>{{ training.years_ago|string + ' aastat tagasi' }}</option></select>
+    <label for="yago">Mitu aastat tagasi?</label>
+  </div>
+{% endif %}
+<form class="remove_training" method="post">
+  <button type="submit" value="{{ training.id }}" name="remove_training" class="btn-small">Eemalda trenn</button>
+</form>
 {% endmacro %}
 
 {% macro log_field(log) %}

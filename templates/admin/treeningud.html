@@ -1,7 +1,85 @@
 {% extends 'admin/master.html' %}
 {% from "_formhelpers.html" import render_field %}
 
+{% block head_css %}
+  {{ super() }}
+  <link href="../../static/extras/noUiSlider/nouislider.css" rel="stylesheet">
+  <!-- <link type="text/css" rel="stylesheet" href="../../static/css/materialize.css"  media="screen,projection"/>-->
+{% endblock %}
+
 {% block body %}
   {{ super() }}
-  <h1>Siia tulevad võistluste nimekirjad</h1>
+  <h2 class="text-center">VÕISTLUSTE NIMEKIRJAD</h2>
+  <div class="container">
+    <form id="search" method="POST">
+      <label for="slider">Klass</label>
+      <div id="slider"></div>
+      <br><br><br><br>
+      <div class="form-group">
+      {{ render_field(form.spordiala, class_="form-control") }}
+      </div>
+      <div class="hide">
+      {{ render_field(form.klass_min) }}
+      {{ render_field(form.klass_max) }}
+      </div>
+      <button class="btn btn-primary" type="submit" name="search" value="Submit">OTSI</button>
+    </form>
+  </div>
+  <br>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Eesnimi</th>
+        <th scope="col">Perekonnanimi</th>
+        <th scope="col">Klass</th>
+      </tr>
+    <tbody>
+      {% set count = 1 %}
+      {% for entry in table %}
+        <tr>
+          <th scope="row">{{ count }}</th>
+          <th>{{ entry.user.first_name }}</th>
+          <th>{{ entry.user.last_name }}</th>
+          <th>{{ entry.user.klass }}</th>
+        </tr>
+        {% set count = count + 1 %}
+      {% endfor%}
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block tail %}
+  {{ super() }}
+<script type="text/javascript" src="../../static/extras/noUiSlider/nouislider.js"></script>
+<!--<script type="text/javascript" src="../../static/js/materialize.js"></script>-->
+<script type="text/javascript" src="../../static/js/wNumb.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  var slider = document.getElementById('slider');
+    noUiSlider.create(slider, {
+      start: [{{ klass_min }}, {{ klass_max }}],
+      range: {
+        min: 1,
+        max: 12
+      },
+      format: wNumb({decimals:0}),
+      connect: true,
+      step: 1,
+      pips: {
+        mode: 'count',
+        values: 12,
+        density: 10
+      }
+  });
+
+  var klassMin = document.getElementById("klass_min");
+  var klassMax = document.getElementById("klass_max");
+
+  slider.noUiSlider.on('update', function(values, handle) {
+    klassMin.value = values[0];
+    klassMax.value = values[1];
+  });
+});
+</script>
 {% endblock %}

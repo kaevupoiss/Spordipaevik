@@ -225,6 +225,12 @@ class SettingsForm(Form):
         validators.InputRequired(message='See väli on kohustuslik')
     ])
 
+class TrainingsViewForm(Form):
+    spordiala = SelectField('Spordiala', coerce=int)
+    klass_min = StringField()
+    klass_max = StringField()
+
+
 @app.route("/", methods=['POST', 'GET'])
 def index():
 
@@ -532,7 +538,24 @@ class TrainingsView(BaseView):
     @expose('/', methods=['POST', 'GET'])
     def index(self):
 
-        return self.render('admin/treeningud.html')
+        form = TrainingsViewForm(request.form)
+
+        sport_choices = Sport.query.filter_by(type='')
+        form.spordiala.choices = [(s.id, s.sport) for s in sport_choices.all()]
+
+        klass_min = 4
+        klass_max = 8
+        if request.method == 'POST' and form.validate():
+            klass_min = form.klass_min.data
+            klass_max = form.klass_max.data
+            spordiala = form.spordiala.data
+
+            query = Training.query.filter_by(sport_id=spordiala)
+
+            table = query.all()
+            return self.render('admin/treeningud.html', table=table, form=form, klass_min = klass_min, klass_max=klass_max)
+
+        return self.render('admin/treeningud.html', form=form, klass_min = klass_min, klass_max=klass_max)
 
 admin = Admin(app, index_view=MyAdminIndexView(), template_mode='bootstrap3')
 admin.add_view(AdminUserView(User, db.session))

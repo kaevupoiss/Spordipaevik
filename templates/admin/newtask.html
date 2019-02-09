@@ -18,19 +18,29 @@
   <li class='active'>
     <a href="../new" title="Create New Task">Lisa</a></li>
 </ul>
+</br>
 <form id="uus_logi" method="post">
   <dl>
-
-    {{ render_field(form.sport) }}
-    <div id="täpsemaltdiv">
-    {{ render_field(form.type) }}
+    <div class="form-group">
+      {{ render_field(form.sport, class_="form-control") }}
     </div>
-    {{ render_field(form.description) }}
-    {{ render_field(form.deadline) }}
-    {{ render_field(form.klass) }}
+    <div class="form-group">
+      <div id="täpsemaltdiv">
+        {{ render_field(form.type, class_="form-control") }}
+      </div>
+    </div>
+    <div class="form-group">
+      {{ render_field(form.description, class_="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.deadline, class_="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.klass, class_="form-control") }}
+    </div>
 
   </dl>
-  <button type="submit" name="uus_logi">Lisa ülesanne</button>
+  <button type="submit" class="btn btn-primary" name="uus_logi">Lisa ülesanne</button>
 </form>
 
 
