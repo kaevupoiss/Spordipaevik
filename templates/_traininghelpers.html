@@ -38,21 +38,26 @@
 {% macro log_field(log) %}
 <li>
   <div>
-    <div class="row">
-      <h1 class="col s6">
-        {{ log.result }}
-      </h1>
-
-      <h4 class="col s6">
-        {{ log.sport.type }}
-      </h4>
-    </div>
-    <div class="row">
-      <p class="col s6">
-        {{ log.time_posted }}
-      </p>
-      <a href="/stats/{{ log.id }}" class="btn-small col s6 valign-wrapper">STATISTIKA</a>
+    <div class="row valign-wrapper">
+      <div class="col s2">
+        <h3 class="nomargin">
+          {{ log.result }}
+        </h3>
+      </div>
+      <div class="col s7 valign-wrapper">
+        <h5 class="left-align">
+          {{ log.sport.type }}
+        </h5>
+      </div>
+      <div class="col s3 right-align">
+        <br>
+        <a href="/stats/{{ log.id }}" class="btn-small"><i class="material-icons left">bar_chart</i>STATISTIKA</a>
+        <p class="nomargin">
+          {{ log.time_posted }}
+        </p>
+      </div>
     </div>
   </div>
+  <div class="divider"></div>
 </li>
 {% endmacro %}

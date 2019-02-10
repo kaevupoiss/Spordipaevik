@@ -3,12 +3,13 @@
 
 {% block body %}
   <br>
-  <div class="newentry row">
-    <a href="{{ url_for('uus_tulemus') }}"><button type="button" class="btn col s12" name="newentry">LISA TULEMUS</button></a>
+  <div class="newentry row center-align">
+    <a href="{{ url_for('uus_tulemus') }}"><button type="button" class="btn btn-large" name="newentry">LISA TULEMUS</button></a>
   </div>
 
   <div class="content">
     <ul>
+    <div class="divider"></div>
     {% for log in log_list %}
         {{ log_field(log) }}
     {% endfor %}

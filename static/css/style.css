@@ -5,6 +5,14 @@
   height: 100%;
 }
 
+.resultheading{
+  margin: 0;
+}
+
+.nomargin {
+  margin: 0 auto;
+}
+
 #backbutton {
   margin: 20px;
 }

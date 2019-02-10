@@ -360,6 +360,10 @@ def seaded():
 def statistika():
     return render_template('statistika.html')
 
+@app.route("/stats/<id>")
+@login_required
+def stats(id):
+    return '<h1>' + id + '</h1>'
 
 
 @app.route("/uus_tulemus", methods=['POST', 'GET'])
