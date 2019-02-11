@@ -12,13 +12,13 @@
     <link href="../static/css/style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <a href="{{ url_for('index') }}" class="btn-floating btn-large" id="backbutton"><i class="material-icons">arrow_back</i></a>
+    <a href="{{ url_for('login') }}" class="btn-floating btn-large" id="backbutton"><i class="material-icons">arrow_back</i></a>
     <div class="container verticalalign">
       <div class="bodywrapper">
         <div class="row">
           <h1 class="center-align" id="logo">SP</h1>
           <br>
-          <form id="login" method="POST">
+          <form id="register" method="POST">
             {{ render_inputfield(form.first_name) }}
             {{ render_inputfield(form.last_name) }}
             {{ render_inputfield(form.email) }}

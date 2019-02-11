@@ -23,6 +23,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 #Error surpress
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+app.config['SECURITY_LOGIN_URL'] = '/login'
 #initialize SQLAlchemy
 db = SQLAlchemy(app)
 
