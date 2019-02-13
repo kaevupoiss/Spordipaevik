@@ -1,0 +1,33 @@
+{% extends "main.html" %}
+{% from "_traininghelpers.html" import task_field %}
+
+{% block body %}
+  <h5 class="center-align">ÜLESANDED</h5>
+  <div class="divider"></div>
+  <br>
+  <br>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Tähtaeg</th>
+        <th scope="col">Spordiala</th>
+        <th scope="col">Kirjeldus</th>
+        <th scope="col"></th>
+      </tr>
+    <tbody>
+      {% for task in task_list%}
+        <tr>
+          <td scope="row">{{ task.deadline.strftime('%d.%m') }}</td>
+          <td>{{ task.sport }}</td>
+          <td>{{ task.description }}</td>
+          <td><a href="/uus_tulemus" class="btn-small">
+            <i class="material-icons left hide-on-small-only">add</i>
+            <i class="material-icons hide-on-med-and-up">add</i>
+            <span class="hide-on-small-only">Lisa Tulemus</span>
+          </a></td>
+        </tr>
+      {% endfor%}
+    </tbody>
+  </table>
+
+{% endblock %}

@@ -3,7 +3,7 @@
 {% from "_formhelpers.html" import render_field %}
 {% from "_traininghelpers.html" import trainings_field %}
 
-<h1 class="center-align">TREENINGUD</h1>
+<h5 class="center-align">TREENINGUD</h5>
 <form id="add_training" method="POST">
 
     {{ render_field(form.sport) }}
@@ -25,11 +25,13 @@
   <a href="{{ url_for('home') }}" class="btn">TAGASI</a>
 </form>
 
+<div class="row">
 {% for training in trainings_list %}
-
+  <div class="col s12 m6 l3">
     {{ trainings_field(training) }}
-
+  </div>
 {% endfor %}
+</div>
 
 <br>
 <br>

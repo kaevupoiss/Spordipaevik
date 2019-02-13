@@ -14,7 +14,14 @@
       <div class="navbar-fixed">
         <nav class="teal lighten-1">
           <div class="nav-wrapper ">
-            <a href="{{ url_for('home') }}" class="brand-logo center">{{ current_user.email }}</a>
+            <a href="{{ url_for('home') }}" class="brand-logo center">
+              {% if current_user.first_name %}
+                {{ current_user.first_name }}
+                {{ current_user.last_name }}
+              {% else %}
+                {{ current_user.email }}
+              {% endif %}
+            </a>
             <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right">
               <li><a href="#" onClick="location.href=location.href"><i class="material-icons">refresh</i></a></li>
@@ -28,6 +35,7 @@
           <li><a class="subheader">MENÜÜ</a></li>
           <li><div class="divider"></div></li>
           <li><a href="{{ url_for('home') }}">Avaleht</a></li>
+          <li><a href="{{ url_for('tasks') }}">Ülesanded</a></li>
           <li><a href="{{ url_for('seaded') }}">Seaded</a></li>
           <li><a href="{{ url_for('treeningud') }}">Treeningud</a></li>
           <li><a href="{{ url_for('statistika') }}">Statistika</a></li>

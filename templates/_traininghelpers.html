@@ -29,6 +29,11 @@
     <select id="yago" name="sport" disabled><option>{{ training.years_ago|string + ' aastat tagasi' }}</option></select>
     <label for="yago">Mitu aastat tagasi?</label>
   </div>
+{% else %}
+  <div class="input-field">
+    <select id="yago" name="sport" disabled><option></option></select>
+    <label for="yago"></label>
+  </div>
 {% endif %}
 <form class="remove_training" method="post">
   <button type="submit" value="{{ training.id }}" name="remove_training" class="btn-small">Eemalda trenn</button>
@@ -36,6 +41,7 @@
 {% endmacro %}
 
 {% macro log_field(log) %}
+
 <li>
   <div>
     <div class="row valign-wrapper">
@@ -49,19 +55,51 @@
           {{ log.sport.type }}
         </p>
       </div>
-      <div class="col s5 s5 right-align">
-        <br>
-        <a href="/stats/{{ log.id }}" class="btn-small">
-          <i class="material-icons left hide-on-small-only">bar_chart</i>
-          <i class="material-icons hide-on-med-and-up">bar_chart</i>
-          <span class="hide-on-small-only">STATISTIKA</span>
-        </a>
-        <p class="nomargin">
-          {{ log.time_posted.strftime('%Y.%m.%d %H:%M') }}
-        </p>
-      </div>
+      {% if log.task %}
+        <div class="col s5 right-align">
+          <br>
+          <a href="/stats/{{ log.id }}" class="btn-small">
+            <i class="material-icons left hide-on-small-only">bar_chart</i>
+            <i class="material-icons hide-on-med-and-up">bar_chart</i>
+            <span class="hide-on-small-only">STATISTIKA</span>
+          </a>
+          <p class="nomargin">
+            {{ log.time_posted.strftime('%m.%d.%Y %H:%M') }}
+          </p>
+        </div>
+      {% else %}
+        <div class="col s5 right-align">
+        </div>
+      {% endif %}
     </div>
   </div>
   <div class="divider"></div>
 </li>
+
+{% endmacro %}
+
+{% macro task_field(task) %}
+
+<li>
+  <div class="row valign-wrapper">
+    <div class="col">
+      <p>
+        {{ task.deadline.strftime('%d.%m') }}
+      </p>
+    </div>
+
+    <div class="col">
+      <p>
+        {{ task.sport }}
+      </p>
+    </div>
+
+    <div clas="col">
+      <p>
+        {{ task.description }}
+      </p>
+    </div>
+  </div>
+</li>
+
 {% endmacro %}

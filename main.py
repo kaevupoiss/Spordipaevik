@@ -284,10 +284,22 @@ def home():
                            log_list = log_list)
 
 
+@app.route("/tasks", methods=['POST','GET'])
+def tasks():
+
+    if not current_user.klass or not current_user.isikukood:
+        return redirect(url_for('seaded'))
+
+    task_list = Task.query.filter_by(klass_id=current_user.klass_id).order_by(desc(Task.deadline))
+
+    return render_template('tasks.html', task_list = task_list)
 
 @app.route("/treeningud", methods=['POST', 'GET'])
 @login_required
 def treeningud():
+
+    if not current_user.klass or not current_user.isikukood:
+        return redirect(url_for('seaded'))
 
     form = TrainingsForm(request.form)
 
@@ -370,6 +382,10 @@ def stats(id):
 @app.route("/uus_tulemus", methods=['POST', 'GET'])
 @login_required
 def uus_tulemus():
+
+    if not current_user.klass or not current_user.isikukood:
+        return redirect(url_for('seaded'))
+
     form = NewLog(request.form)
     sport_choices = Sport.query.filter_by(type='')
     form.sport.choices = [(sport.id, sport.sport) for sport in sport_choices.all()]
