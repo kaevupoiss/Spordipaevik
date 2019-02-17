@@ -37,13 +37,15 @@
     <tbody>
       {% set count = 1 %}
       {% for entry in table %}
-        <tr>
-          <th scope="row">{{ count }}</th>
-          <th>{{ entry.user.first_name }}</th>
-          <th>{{ entry.user.last_name }}</th>
-          <th>{{ entry.user.klass }}</th>
-        </tr>
+        {% if (entry.user.klass.klass[:2]|int >= klass_min|int and entry.user.klass.klass[:2]|int <= klass_max|int) %}
+          <tr>
+            <th scope="row">{{ count }}</th>
+            <th>{{ entry.user.first_name }}</th>
+            <th>{{ entry.user.last_name }}</th>
+            <th>{{ entry.user.klass.klass }}</th>
+          </tr>
         {% set count = count + 1 %}
+        {% endif %}
       {% endfor%}
     </tbody>
   </table>

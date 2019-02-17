@@ -347,14 +347,9 @@ def treeningud():
 @login_required
 def seaded():
 
-    form = SettingsForm(request.form)
+    form = SettingsForm(request.form, klass=current_user.klass_id, isikukood=current_user.isikukood, email=current_user.email)
+
     form.klass.choices = [(klass.id, klass.klass) for klass in Klass.query.all()]
-    if current_user.klass:
-        form.klass.data = current_user.klass
-    if current_user.isikukood:
-        form.isikukood.data = current_user.isikukood
-    if current_user.email:
-        form.email.data = current_user.email
 
     if request.method == 'POST' and form.validate():
 
@@ -571,10 +566,21 @@ class TrainingsView(BaseView):
             klass_max = form.klass_max.data
             spordiala = form.spordiala.data
 
-            query = Training.query.filter_by(sport_id=spordiala)
+            query = db.session.query(Training)
+
+            query = query.filter(Training.sport_id == spordiala)
 
             table = query.all()
-            return self.render('admin/treeningud.html', table=table, form=form, klass_min = klass_min, klass_max=klass_max)
+
+            '''
+            newtable = []
+            for i in table:
+                for j in range(int(klass_min), int(klass_max)):
+                    i.user.klass.klass[:2] == j:
+                        newtable.append(i)
+            '''
+
+            return self.render('admin/treeningud.html', table=table, form=form, klass_min=klass_min, klass_max=klass_max)
 
         return self.render('admin/treeningud.html', form=form, klass_min = klass_min, klass_max=klass_max)
 
