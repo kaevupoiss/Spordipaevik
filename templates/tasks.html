@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 {% from "_traininghelpers.html" import task_field %}
-
 {% block body %}
+
   <h5 class="center-align">ÜLESANDED</h5>
   <div class="divider"></div>
   <br>
@@ -15,16 +15,34 @@
         <th scope="col"></th>
       </tr>
     <tbody>
-      {% for task in task_list%}
+      {% for task in task_list %}
         <tr>
           <td scope="row">{{ task.deadline.strftime('%d.%m') }}</td>
           <td>{{ task.sport }}</td>
           <td>{{ task.description }}</td>
-          <td><a href="/uus_tulemus" class="btn-small">
-            <i class="material-icons left hide-on-small-only">add</i>
-            <i class="material-icons hide-on-med-and-up">add</i>
-            <span class="hide-on-small-only">Lisa Tulemus</span>
-          </a></td>
+          <td>
+            {% for i in q %}
+              {% if i.task_id == task.id %}
+                {% set done = true %}
+                <h1>{{ done }}</h1>
+              {% endif %}
+            {% endfor %}
+
+            {% if done|string == 'true' %}
+              <a href="#" class="btn-small" disabled>
+              <i class="material-icons left hide-on-small-only">check_box</i>
+              <i class="material-icons hide-on-med-and-up">check_box</i>
+              <span class="hide-on-small-only">Sooritatud</span>
+              </a>
+            {% else %}
+              <a href="/uus_tulemus/{{ task.id }}/{{ task.sport_id }}" class="btn-small">
+              <i class="material-icons left hide-on-small-only">add</i>
+              <i class="material-icons hide-on-med-and-up">add</i>
+              <span class="hide-on-small-only">Lisa Tulemus</span>
+              </a>
+            {% endif %}
+
+        </td>
         </tr>
       {% endfor%}
     </tbody>

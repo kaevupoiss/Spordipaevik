@@ -6,8 +6,8 @@
     <!--Imprort Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
-    <link type="text/css" rel="stylesheet" href="static/css/materialize.css"  media="screen,projection"/>
-    <link href="../static/css/style.css" rel="stylesheet" type="text/css">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static',filename='css/materialize.css') }}"  media="screen,projection"/>
+    <link href="{{ url_for('static',filename='css/style.css') }}" rel="stylesheet" type="text/css">
   </head>
   <body>
     <div class="wrapper">
@@ -48,7 +48,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script type="text/javascript" src="static/js/materialize.js"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/materialize.js') }}"></script>
     <script type="text/javascript">
       $(document).ready(function(){
         $('.sidenav').sidenav();

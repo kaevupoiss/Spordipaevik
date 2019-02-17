@@ -292,7 +292,9 @@ def tasks():
 
     task_list = Task.query.filter_by(klass_id=current_user.klass_id).order_by(desc(Task.deadline))
 
-    return render_template('tasks.html', task_list = task_list)
+    q = Log.query.filter_by(user_id=current_user.id).all()
+
+    return render_template('tasks.html', task_list = task_list, q = q)
 
 @app.route("/treeningud", methods=['POST', 'GET'])
 @login_required
@@ -373,10 +375,10 @@ def statistika():
 def stats(id):
     return '<h1>' + id + '</h1>'
 
-
-@app.route("/uus_tulemus", methods=['POST', 'GET'])
+@app.route("/uus_tulemus", defaults={'task_id': None, 'sport_id': None}, methods=['POST', 'GET'])
+@app.route("/uus_tulemus/<task_id>/<sport_id>", methods=['POST', 'GET'])
 @login_required
-def uus_tulemus():
+def uus_tulemus(task_id, sport_id):
 
     if not current_user.klass or not current_user.isikukood:
         return redirect(url_for('seaded'))
@@ -386,16 +388,19 @@ def uus_tulemus():
     form.sport.choices = [(sport.id, sport.sport) for sport in sport_choices.all()]
     form.type.choices = [(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()]
 
+    sportname = Sport.query.filter_by(id=sport_id).first()
+
     if request.method == 'POST':
+        sport_choice = sport_id if sport_id else form.type.data
         log = Log(user_id = current_user.id,
-                  sport_id = form.type.data,
+                  sport_id = sport_choice,
+                  task_id = task_id,
                   time_posted = datetime.now().replace(second=0, microsecond=0),
-                  #time_posted = form.day_posted.data,
                   result = form.result.data)
         db.session.add(log)
         db.session.commit()
         return redirect(url_for('home'))
-    return render_template('uus_tulemus.html', form=form)
+    return render_template('uus_tulemus.html', form=form, sportname=sportname)
 
 
 
@@ -571,14 +576,6 @@ class TrainingsView(BaseView):
             query = query.filter(Training.sport_id == spordiala)
 
             table = query.all()
-
-            '''
-            newtable = []
-            for i in table:
-                for j in range(int(klass_min), int(klass_max)):
-                    i.user.klass.klass[:2] == j:
-                        newtable.append(i)
-            '''
 
             return self.render('admin/treeningud.html', table=table, form=form, klass_min=klass_min, klass_max=klass_max)
 

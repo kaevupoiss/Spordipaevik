@@ -5,9 +5,17 @@
   <h5 class="center-align">LISA TULEMUS</h5>
 
   <form id="uus_logi" method="post">
-
-    {{ render_field(form.sport) }}
-    {{ render_field(form.type) }}
+    {% if not sportname %}
+      {{ render_field(form.sport) }}
+      {{ render_field(form.type) }}
+    {% else %}
+    <div class="input-field">
+      <select id="active" name="sport" disabled>
+          <option>{{ sportname }}</option>
+      </select>
+      <label for="spordiala">Spordiala</label>
+    </div>
+    {% endif %}
     {{ render_field(form.result) }}
     <button type="submit" name="uus_logi" class="btn">LISA SOORITUS</button>
   </form>
