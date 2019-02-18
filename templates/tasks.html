@@ -21,20 +21,20 @@
           <td>{{ task.sport }}</td>
           <td>{{ task.description }}</td>
           <td>
+            {% set ns = namespace (done = false) %}
             {% for i in q %}
               {% if i.task_id == task.id %}
-                {% set done = true %}
-                <h1>{{ done }}</h1>
+                {% set ns.done = true %}
               {% endif %}
             {% endfor %}
 
-            {% if done|string == 'true' %}
+            {% if ns.done == true %}
               <a href="#" class="btn-small" disabled>
               <i class="material-icons left hide-on-small-only">check_box</i>
               <i class="material-icons hide-on-med-and-up">check_box</i>
               <span class="hide-on-small-only">Sooritatud</span>
               </a>
-            {% else %}
+            {% elif ns.done == false %}
               <a href="/uus_tulemus/{{ task.id }}/{{ task.sport_id }}" class="btn-small">
               <i class="material-icons left hide-on-small-only">add</i>
               <i class="material-icons hide-on-med-and-up">add</i>

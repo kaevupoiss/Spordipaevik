@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, current_app
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import desc
+from sqlalchemy import desc, asc
 from datetime import datetime
 from wtforms import Form, BooleanField, StringField, PasswordField, SelectField, validators
 from wtforms_alchemy.fields import QuerySelectField
@@ -290,7 +290,7 @@ def tasks():
     if not current_user.klass or not current_user.isikukood:
         return redirect(url_for('seaded'))
 
-    task_list = Task.query.filter_by(klass_id=current_user.klass_id).order_by(desc(Task.deadline))
+    task_list = Task.query.filter_by(klass_id=current_user.klass_id).order_by(asc(Task.deadline))
 
     q = Log.query.filter_by(user_id=current_user.id).all()
 
@@ -306,6 +306,8 @@ def treeningud():
     form = TrainingsForm(request.form)
 
     sport_choices = Sport.query.filter_by(type='')
+
+
     form.sport.choices = [(s.id, s.sport) for s in sport_choices.all()]
     form.period.choices = [(str(i), str(i) + ' aastat') for i in range(1, 15)]
     form.years_ago.choices = [(str(j), str(j) + ' aastat tagasi') for j in range(1, 15)]
