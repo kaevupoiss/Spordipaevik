@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, current_app
-from flask_sqlalchemy import SQLAlchemy, create_engine
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc, asc
-from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
 from wtforms import Form, BooleanField, StringField, PasswordField, SelectField, validators
 from wtforms_alchemy.fields import QuerySelectField
@@ -17,20 +16,18 @@ import os
 
 
 print("cwd: " + os.getcwd())
-
 #initialize Flask
 app = Flask(__name__)
 #secret key
 app.config['SECRET_KEY'] = '\x9e\x1b\xa8\xfb\x880\x95^\x924F\xb0`\xaetl\xa2\xd7\xae\xccvP\x87\x89'
 #database connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://hxlailkzkjqpsw:54b3f7f73548f7396a7b10d96621cd0bf39ef8caa1f4b3d1899f716d6af077d9@ec2-23-21-130-182.compute-1.amazonaws.com:5432/dbg5o45chlabsl'
 #Error surpress
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['SECURITY_LOGIN_URL'] = '/login'
 #initialize SQLAlchemy
-engine = "postgres://hxlailkzkjqpsw:54b3f7f73548f7396a7b10d96621cd0bf39ef8caa1f4b3d1899f716d6af077d9@ec2-23-21-130-182.compute-1.amazonaws.com:5432/dbg5o45chlabsl"
-db = scoped_session(sessionmaker(bind=engine))
+db = SQLAlchemy(app)
 
 
 
