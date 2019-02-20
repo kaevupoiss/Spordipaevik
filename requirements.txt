@@ -10,3 +10,4 @@ flask_login
 flask_security
 flask_principal
 flask_admin
+psycopg2
