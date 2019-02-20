@@ -12,7 +12,10 @@ from flask_principal import Principal, Identity, AnonymousIdentity, identity_cha
 from flask_admin import Admin, AdminIndexView, expose, BaseView
 from flask_admin.menu import MenuLink
 from flask_admin.contrib.sqla import ModelView
+import os
 
+
+print("cwd: " + os.getcwd())
 
 #initialize Flask
 app = Flask(__name__)
