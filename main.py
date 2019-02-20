@@ -99,7 +99,8 @@ class Log(db.Model):
 class Sport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sport = db.Column(db.String(40), nullable=False)
-    type = db.Column(db.String(40), nullable=False)
+    type = db.Column(db.String(40))
+    suffix = db.Column(db.String(10))
     logs = db.relationship('Log', backref=db.backref('sport', lazy=True))
     trainings = db.relationship('Training', backref=db.backref('sport', lazy=True))
     tasks = db.relationship('Task', backref=db.backref('sport', lazy=True))
