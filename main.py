@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, current_app
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, create_engine
 from sqlalchemy import desc, asc
+from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
 from wtforms import Form, BooleanField, StringField, PasswordField, SelectField, validators
 from wtforms_alchemy.fields import QuerySelectField
@@ -28,7 +29,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['SECURITY_LOGIN_URL'] = '/login'
 #initialize SQLAlchemy
-db = SQLAlchemy(app)
+engine = "postgres://hxlailkzkjqpsw:54b3f7f73548f7396a7b10d96621cd0bf39ef8caa1f4b3d1899f716d6af077d9@ec2-23-21-130-182.compute-1.amazonaws.com:5432/dbg5o45chlabsl"
+db = scoped_session(sessionmaker(bind=engine))
 
 
 
