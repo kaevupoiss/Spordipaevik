@@ -21,7 +21,7 @@ app = Flask(__name__)
 #secret key
 app.config['SECRET_KEY'] = '\x9e\x1b\xa8\xfb\x880\x95^\x924F\xb0`\xaetl\xa2\xd7\xae\xccvP\x87\x89'
 #database connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://hxlailkzkjqpsw:54b3f7f73548f7396a7b10d96621cd0bf39ef8caa1f4b3d1899f716d6af077d9@ec2-23-21-130-182.compute-1.amazonaws.com:5432/dbg5o45chlabsl'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://gvludajiptnmwq:e9a02b6bbe762a84d223c655bbec79339bf57d3ed4dc52004b21d3ff2b573af1@ec2-54-204-41-109.compute-1.amazonaws.com:5432/d1u6auagft2oig'
 #Error surpress
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
