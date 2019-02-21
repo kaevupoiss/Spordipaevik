@@ -309,7 +309,7 @@ def treeningud():
 
     form = TrainingsForm(request.form)
 
-    sport_choices = Sport.query.filter_by(type='')
+    sport_choices = Sport.query.filter_by(type=None)
 
 
     form.sport.choices = [(s.id, s.sport) for s in sport_choices.all()]
@@ -487,7 +487,7 @@ class TeacherTaskView(ModelView):
 
         form = NewTask(request.form)
 
-        sport_choices = Sport.query.filter_by(type='')
+        sport_choices = Sport.query.filter_by(type=None)
         form.sport.choices = [(sport.id, sport.sport) for sport in sport_choices.all()]
         form.type.choices = [(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()]
         form.klass.choices = [(klass.id, klass.klass) for klass in Klass.query.all()]
