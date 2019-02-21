@@ -22,6 +22,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = '\x9e\x1b\xa8\xfb\x880\x95^\x924F\xb0`\xaetl\xa2\xd7\xae\xccvP\x87\x89'
 #database connection
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://gvludajiptnmwq:e9a02b6bbe762a84d223c655bbec79339bf57d3ed4dc52004b21d3ff2b573af1@ec2-54-204-41-109.compute-1.amazonaws.com:5432/d1u6auagft2oig'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////database.db'
 #Error surpress
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -389,7 +390,7 @@ def uus_tulemus(task_id, sport_id):
         return redirect(url_for('seaded'))
 
     form = NewLog(request.form)
-    sport_choices = Sport.query.filter_by(type='')
+    sport_choices = Sport.query.filter_by(type=None)
     form.sport.choices = [(sport.id, sport.sport) for sport in sport_choices.all()]
     form.type.choices = [(type.id, type.type) for type in Sport.query.filter_by(sport=sport_choices.first().sport).all()]
 
