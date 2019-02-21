@@ -332,7 +332,7 @@ def treeningud():
         if form.active.data == 'N':
             years_ago = form.years_ago.data
         else:
-            years_ago = ''
+            years_ago = None
 
         if form.competitions.data == 'Y':
             comp = True
