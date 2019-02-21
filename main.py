@@ -107,7 +107,10 @@ class Sport(db.Model):
     tasks = db.relationship('Task', backref=db.backref('sport', lazy=True))
 
     def __repr__(self):
-        return self.sport + ' ' + self.type
+        if self.type:
+            return self.sport + ' ' + self.type
+        else:
+            return self.sport
 
 class Training(db.Model):
     id = db.Column(db.Integer, primary_key=True)
