@@ -45,7 +45,8 @@
         fetch('/new_log/' + sport).then(function(response) {
 
           response.json().then(function(data) {
-              let optionHTML = '';
+              //let optionHTML = '';
+              $('#type').find('option').remove()
 
               for (let type of data.types) {
                 //optionHTML += '<option value="' + type.id + '">' + type.type + '</option>';
