@@ -567,7 +567,7 @@ class TrainingsView(BaseView):
 
         form = TrainingsViewForm(request.form)
 
-        sport_choices = Sport.query.filter_by(type='')
+        sport_choices = Sport.query.filter_by(type=None)
         form.spordiala.choices = [(s.id, s.sport) for s in sport_choices.all()]
 
         klass_min = 4
