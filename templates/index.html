@@ -31,6 +31,9 @@
             <button class="btn col s6" type="submit" name="login">LOGI SISSE</button>
             <a href="{{ url_for('register') }}" class="btn col s6 transparent" id="registreeri">REGISTREERI</a>
           </form>
+          {% if error %}
+          <h4>{{ error }}</h4>
+          {% endif %}
         </div>
       </div>
     </div>

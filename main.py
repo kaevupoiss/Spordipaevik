@@ -268,7 +268,8 @@ def index():
                 else:
                     return redirect(url_for('home'))
 
-        return '<h1>Invalid username or password</h1>'
+        error = "Vale email või parool!"
+        return render_template('index.html', form=form, error=error)
 
     return render_template('index.html', form=form)
 
@@ -644,7 +645,7 @@ class StudentView(BaseView):
                     list = student.all()
 
                     return self.render('admin/student.html', form=form, list=list)
-                    
+
             return self.render('admin/student.html', form=form, student=student, trainings=trainings, logs=logs)
 
         else:
