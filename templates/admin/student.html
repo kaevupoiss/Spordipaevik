@@ -1,0 +1,107 @@
+{% extends 'admin/master.html' %}
+{% from "_formhelpers.html" import render_field %}
+
+{% block head_css %}
+  {{ super() }}
+  <!-- <link type="text/css" rel="stylesheet" href="../../static/css/materialize.css"  media="screen,projection"/>-->
+{% endblock %}
+
+{% block body %}
+  {{ super() }}
+  <h2 class="text-center">ÕPILANE</h2>
+  <div class="container">
+    {% if message %}<h4>{{ message }}</h4>{% endif %}
+    <form id="search" method="POST">
+      {{ render_field(form.student_name, class_="form-control") }}
+      <button class="btn btn-primary" type="submit" name="search" value="Submit">OTSI</button>
+    </form>
+  </div>
+
+  <br>
+
+{% if list %}
+<h3>Valige üks</h3>
+
+<table class="table">
+  <tbody>
+    {% for student in list %}
+        <tr>
+          <th><a href="{{ student.id }}">{{ student.first_name + " " + student.last_name }}</a></th>
+          <th>{{ student.klass}}</th>
+        </tr>
+    {% endfor%}
+  </tbody>
+</table>
+{% endif %}
+
+
+{% if student %}
+
+  <h3>{{ student.first_name + " " + student.last_name }}</h3>
+  <p>email: {{ student.email }}</p>
+  <p>isikukood: {{ student.isikukood }}</p>
+  <p>{{ student.klass.klass }} klass</p>
+
+
+  <h4 class="text-center">TREENINGUD</h4>
+  <br>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Spordiala</th>
+        <th scope="col">Kui kaua?</th>
+        <th scope="col">Võistlused?</th>
+        <th scope="col">Praegu käid?</th>
+        <th scope="col">Mitu aastat tagasi?</th>
+      </tr>
+    <tbody>
+      {% set count = 1 %}
+      {% for training in trainings %}
+          <tr>
+            <th scope="row">{{ count }}</th>
+            <th>{{ training.sport.sport }}</th>
+            <th>{{ training.years|string + ' aastat' }}</th>
+            {% if training.comp %}<th>Jah</th>
+            {% else %}<th>Ei</th>
+            {% endif %}
+            {% if training.years_ago %}<th>Ei</th>
+            {% else %}<th>Jah</th>
+            {% endif %}
+            {% if training.years_ago %}<th>{{ training.years_ago|string + ' aastat tagasi' }}</th>
+            {% else %}<th></th>
+            {% endif %}
+          </tr>
+        {% set count = count + 1 %}
+      {% endfor%}
+    </tbody>
+  </table>
+
+  <h4 class="text-center">TULEMUSED</h4>
+  <br>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Tulemus</th>
+        <th scope="col">Spordiala</th>
+        <th scope="col">Kuupäev</th>
+      </tr>
+    <tbody>
+      {% set count = 1 %}
+      {% for log in logs %}
+          <tr>
+            <th scope="row">{{ count }}</th>
+            <th>{{ log.result }}</th>
+            <th>{{ log.sport }}</th>
+            <th>{{ log.time_posted.strftime('%m.%d.%Y %H:%M') }}</th>
+          </tr>
+        {% set count = count + 1 %}
+      {% endfor%}
+    </tbody>
+  </table>
+<br>
+<div class="divider"></div>
+<br>
+{% endif %}
+{% endblock %}

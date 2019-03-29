@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, current_app
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import desc, asc
+from sqlalchemy import desc, asc, or_
 from datetime import datetime
 from wtforms import Form, BooleanField, StringField, PasswordField, SelectField, validators
 from wtforms_alchemy.fields import QuerySelectField
@@ -238,6 +238,8 @@ class TrainingsViewForm(Form):
     klass_min = StringField()
     klass_max = StringField()
 
+class StudentViewForm(Form):
+    student_name = StringField()
 
 @app.route("/", methods=['POST', 'GET'])
 def index():
@@ -590,6 +592,92 @@ class TrainingsView(BaseView):
 
         return self.render('admin/treeningud.html', form=form, klass_min = klass_min, klass_max=klass_max)
 
+class StudentView(BaseView):
+    def is_accessible(self):
+        return current_user.is_authenticated and (current_user.has_role('admin')
+                                               or current_user.has_role('teacher'))
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('index'))
+
+    @expose('/', methods=['POST', 'GET'])
+    def index(self):
+
+        return redirect(url_for('student.student', id=0))
+
+    @expose('/<id>', methods=['POST', 'GET'])
+    def student(self, id):
+
+        id = int(id)
+        if id:
+            student = db.session.query(User)
+            student = student.filter_by(id=id)
+            student = student.first()
+
+            trainings = Training.query.filter_by(user_id=student.id).all()
+
+            logs = Log.query.filter_by(user_id=student.id).order_by(desc(Log.time_posted))
+
+            form = StudentViewForm(request.form, student_name=(student.first_name + ' ' + student.last_name))
+
+            if request.method == 'POST' and form.validate():
+
+                student = db.session.query(User)
+
+                student = student.filter((User.first_name + " " + User.last_name).like("%"+str(form.student_name.data)+"%"))
+                if student.count() == 1:
+
+                    student = student.first()
+
+                    trainings = Training.query.filter_by(user_id=student.id).all()
+
+                    logs = Log.query.filter_by(user_id=student.id).order_by(desc(Log.time_posted))
+
+                    return self.render('admin/student.html', form=form, student=student, trainings=trainings, logs=logs)
+
+                elif student.count() == 0:
+
+                    message = "Sellist õpilast ei leitud!"
+                    return self.render('admin/student.html', form=form, message=message)
+
+                else:
+                    list = student.all()
+
+                    return self.render('admin/student.html', form=form, list=list)
+                    
+            return self.render('admin/student.html', form=form, student=student, trainings=trainings, logs=logs)
+
+        else:
+            form = StudentViewForm(request.form)
+
+            if request.method == 'POST' and form.validate():
+
+                student = db.session.query(User)
+
+                student = student.filter((User.first_name + " " + User.last_name).like("%"+str(form.student_name.data)+"%"))
+                if student.count() == 1:
+
+                    student = student.first()
+
+                    trainings = Training.query.filter_by(user_id=student.id).all()
+
+                    logs = Log.query.filter_by(user_id=student.id).order_by(desc(Log.time_posted))
+
+                    return self.render('admin/student.html', form=form, student=student, trainings=trainings, logs=logs)
+
+                elif student.count() == 0:
+
+                    message = "Sellist õpilast ei leitud!"
+                    return self.render('admin/student.html', form=form, message=message)
+
+                else:
+                    list = student.all()
+
+                    return self.render('admin/student.html', form=form, list=list)
+
+            return self.render('admin/student.html', form=form)
+
+
 admin = Admin(app, index_view=MyAdminIndexView(), template_mode='bootstrap3')
 admin.add_view(AdminUserView(User, db.session))
 admin.add_view(AdminModelView(Sport, db.session))
@@ -598,6 +686,7 @@ admin.add_view(AdminModelView(Role, db.session))
 admin.add_view(AdminModelView(Klass, db.session))
 admin.add_view(TeacherTaskView(Task, db.session))
 admin.add_view(TrainingsView(name='Trennid', endpoint='treeningud'))
+admin.add_view(StudentView(name='Õpilase otsing', endpoint='student'))
 #admin.add_link(MenuLink(name='Uus ülesanne', url='/new_task'))
 admin.add_link(MenuLink(name='Logi välja', category='', url="/logout"))
 
