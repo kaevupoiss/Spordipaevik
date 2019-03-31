@@ -1,0 +1,19 @@
+{% from "_formhelpers.html" import render_inputfield %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=viewport-width, initial-scale=1.0">
+    <title>Spordipäevik</title>
+    <!--Imprort Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="static/css/materialize.css"  media="screen,projection"/>
+    <link href="../static/css/style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <script type="text/javascript">
+      window.location.replace("{{ url_for('index') }}");
+    </script>
+  </body>
+</html>

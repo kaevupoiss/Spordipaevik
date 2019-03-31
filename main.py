@@ -27,6 +27,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://gvludajiptnmwq:e9a02b6bbe762
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['SECURITY_LOGIN_URL'] = '/login'
+
 #initialize SQLAlchemy
 db = SQLAlchemy(app)
 
@@ -268,12 +269,10 @@ def index():
                 else:
                     return redirect(url_for('home'))
 
-        error = "Vale email või parool!"
-        return render_template('index.html', form=form, error=error)
+        form.password.errors.append("Vale email või parool!")
+        return render_template('index.html', form=form)
 
     return render_template('index.html', form=form)
-
-
 
 @app.route("/home")
 @login_required
