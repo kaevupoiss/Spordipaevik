@@ -14,4 +14,4 @@ __pycache__/
 *.db
 
 # Config
-config.py
+config.sh
