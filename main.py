@@ -15,17 +15,15 @@ from flask_admin.contrib.sqla import ModelView
 import os
 
 
-print("cwd: " + os.getcwd())
 #initialize Flask
 app = Flask(__name__)
-#secret key
-app.config['SECRET_KEY'] = '\x9e\x1b\xa8\xfb\x880\x95^\x924F\xb0`\xaetl\xa2\xd7\xae\xccvP\x87\x89'
-#database connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://gvludajiptnmwq:e9a02b6bbe762a84d223c655bbec79339bf57d3ed4dc52004b21d3ff2b573af1@ec2-54-204-41-109.compute-1.amazonaws.com:5432/d1u6auagft2oig'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////database.db'
+
+app.config.from_envvar('YOURAPPLICATION_SETTINGS')
+
 #Error surpress
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+#Flask-Security login redirect
 app.config['SECURITY_LOGIN_URL'] = '/login'
 
 #initialize SQLAlchemy
