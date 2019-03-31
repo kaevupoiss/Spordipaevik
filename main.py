@@ -18,8 +18,8 @@ import os
 #initialize Flask
 app = Flask(__name__)
 
-os.environ["SECRET_KEY"]
-os.environ["SQLALCHEMY_DATABASE_URI"]
+app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["SQLALCHEMY_DATABASE_URI"]
 
 #Error surpress
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
