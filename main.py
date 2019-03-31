@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, current_app
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import desc, asc, or_
+from sqlalchemy import desc, asc, or_, func
 from datetime import datetime
 from wtforms import Form, BooleanField, StringField, PasswordField, SelectField, validators
 from wtforms_alchemy.fields import QuerySelectField
@@ -623,7 +623,7 @@ class StudentView(BaseView):
 
                 student = db.session.query(User)
 
-                student = student.filter((User.first_name + " " + User.last_name).like("%"+str(form.student_name.data)+"%"))
+                student = student.filter((User.first_name + " " + User.last_name).ilike("%"+str(form.student_name.data)+"%"))
                 if student.count() == 1:
 
                     student = student.first()
@@ -653,7 +653,7 @@ class StudentView(BaseView):
 
                 student = db.session.query(User)
 
-                student = student.filter((User.first_name + " " + User.last_name).like("%"+str(form.student_name.data)+"%"))
+                student = student.filter((User.first_name + " " + User.last_name).ilike("%"+str(form.student_name.data)+"%"))
                 if student.count() == 1:
 
                     student = student.first()
